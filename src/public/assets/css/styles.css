@@ -1,0 +1,396 @@
+/* Flutter Server Admin theme (visual-only). */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap");
+:root {
+  --fl-primary: #02569b; /* Flutter blue */
+  --fl-primary-2: #13b9fd; /* Flutter cyan */
+  --fl-accent: #7c4dff; /* youthful purple */
+  --fl-bg: #f6f8fc;
+  --fl-surface: #ffffff;
+  --fl-surface-2: rgba(255, 255, 255, 0.72);
+  --fl-text: #0f172a;
+  --fl-muted: #64748b;
+  --fl-border: rgba(15, 23, 42, 0.08);
+  --fl-shadow: 0 10px 26px rgba(2, 86, 155, 0.10);
+  --fl-shadow-sm: 0 6px 16px rgba(2, 86, 155, 0.08);
+  --fl-radius: 18px;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  background: radial-gradient(1100px 520px at 10% 0%, rgba(19, 185, 253, 0.12), transparent 60%),
+    radial-gradient(900px 520px at 90% 0%, rgba(124, 77, 255, 0.10), transparent 60%),
+    var(--fl-bg);
+  color: var(--fl-text);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+/* Better typography defaults */
+h1, h2, h3, h4, h5, h6 {
+  letter-spacing: -0.02em;
+}
+
+a {
+  text-decoration: none !important;
+}
+
+/* Support existing templates using SB Admin-like classes */
+.bg-gradient-primary {
+  background: linear-gradient(135deg, var(--fl-primary) 0%, var(--fl-primary-2) 55%, var(--fl-accent) 120%) !important;
+}
+
+.sidebar.sidebar-dark {
+  background: linear-gradient(180deg, #02569b 0%, #0a3c72 55%, #071b33 110%) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.sidebar .nav-item .nav-link,
+.sidebar .navbar-brand {
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
+.sidebar .nav-item .nav-link:hover {
+  background: rgba(255, 255, 255, 0.10);
+  border-radius: 12px;
+}
+
+.sidebar .nav-item .nav-link.active {
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 12px;
+}
+
+/* Sidebar polish (more "senior" / product-like) */
+.sidebar .nav-item {
+  margin: 2px 10px;
+}
+
+.sidebar .nav-item .nav-link {
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.sidebar .nav-item .nav-link span {
+  opacity: 0.95;
+}
+
+.sidebar .navbar-brand {
+  padding: 18px 12px;
+}
+
+.sidebar-brand-icon {
+  filter: drop-shadow(0 10px 18px rgba(19, 185, 253, 0.25));
+}
+
+.sidebar-brand-text span {
+  letter-spacing: 0.4px;
+  font-weight: 800;
+}
+
+/* Content surfaces */
+#content-wrapper,
+#content {
+  min-height: 100vh;
+}
+
+/* Make the main content readable on light surfaces */
+#content-wrapper {
+  color: var(--fl-text);
+  background: transparent;
+}
+
+.topbar.navbar-light.bg-white,
+nav.navbar.navbar-light.navbar-expand.bg-white.shadow.mb-4.topbar.static-top {
+  background: var(--fl-surface) !important;
+  border: 1px solid var(--fl-border);
+  border-radius: var(--fl-radius);
+  margin: 16px 16px 12px 16px;
+  box-shadow: var(--fl-shadow-sm) !important;
+  color: var(--fl-text);
+}
+
+/* Topbar: floating + subtle gradient border */
+.topbar.navbar-light.bg-white::before,
+nav.navbar.navbar-light.navbar-expand.bg-white.shadow.mb-4.topbar.static-top::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: calc(var(--fl-radius) + 1px);
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(19, 185, 253, 0.55), rgba(124, 77, 255, 0.35), rgba(2, 86, 155, 0.45));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.topbar.navbar-light.bg-white,
+nav.navbar.navbar-light.navbar-expand.bg-white.shadow.mb-4.topbar.static-top {
+  position: relative;
+}
+
+.container-fluid {
+  padding: 18px 22px;
+}
+
+.search-table-col {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--fl-border);
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: var(--fl-shadow);
+}
+
+.bill-header.cs #trs-hd,
+.bill-header.cs th,
+.bill-header.cs td {
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  color: rgba(15, 23, 42, 0.72);
+  background: rgba(2, 86, 155, 0.06);
+  border-bottom: 1px solid var(--fl-border);
+}
+
+.results .table-responsive,
+.table-responsive.results {
+  border: 0 !important;
+}
+
+.table-hover tbody tr:hover {
+  background: rgba(19, 185, 253, 0.06);
+}
+
+.btn {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.card {
+  border-radius: var(--fl-radius) !important;
+  border: 1px solid var(--fl-border) !important;
+  box-shadow: var(--fl-shadow-sm) !important;
+  overflow: hidden;
+  background: var(--fl-surface) !important;
+  color: var(--fl-text);
+}
+
+.card-header {
+  background: rgba(255, 255, 255, 0.60) !important;
+  border-bottom: 1px solid var(--fl-border) !important;
+}
+
+/* Keep "text-dark" actually dark on light surfaces */
+.text-dark {
+  color: var(--fl-text) !important;
+}
+
+/* Headings inside content */
+#content-wrapper h1,
+#content-wrapper h2,
+#content-wrapper h3,
+#content-wrapper h4,
+#content-wrapper h5,
+#content-wrapper h6 {
+  color: var(--fl-text);
+  letter-spacing: -0.02em;
+}
+
+/* Page title + subtitle */
+.fl-page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.fl-page-title {
+  font-size: 22px;
+  font-weight: 900;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.fl-page-subtitle {
+  margin: 6px 0 0 0;
+  color: rgba(15, 23, 42, 0.60);
+  font-weight: 600;
+}
+
+.text-gray-600,
+.small {
+  color: rgba(15, 23, 42, 0.72) !important;
+}
+
+/* Dashboard stat cards */
+.border-left-primary,
+.border-left-success,
+.border-left-warning,
+.border-left-info {
+  border-left: 0 !important;
+  position: relative;
+}
+
+.border-left-primary::before,
+.border-left-success::before,
+.border-left-warning::before,
+.border-left-info::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 6px;
+  border-radius: 0 18px 18px 0;
+  background: linear-gradient(180deg, var(--fl-primary-2), var(--fl-accent));
+  opacity: 0.75;
+}
+
+.border-left-success::before {
+  background: linear-gradient(180deg, #22c55e, var(--fl-primary-2));
+}
+
+.border-left-warning::before {
+  background: linear-gradient(180deg, #f59e0b, #fbbf24);
+}
+
+.card .text-uppercase {
+  letter-spacing: 0.10em;
+}
+
+/* Make stat cards look intentional */
+.card.shadow.border-left-success.py-2,
+.card.shadow.border-left-primary.py-2,
+.card.shadow.border-left-warning.py-2 {
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.card.shadow.border-left-success.py-2:hover,
+.card.shadow.border-left-primary.py-2:hover,
+.card.shadow.border-left-warning.py-2:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--fl-shadow) !important;
+}
+
+/* KPI layout */
+.fl-kpi .card-body {
+  padding: 16px 16px;
+}
+
+.fl-kpi__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.fl-kpi__icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(19, 185, 253, 0.18), rgba(124, 77, 255, 0.14));
+  border: 1px solid rgba(2, 86, 155, 0.12);
+  color: var(--fl-primary);
+  box-shadow: 0 10px 18px rgba(2, 86, 155, 0.10);
+  flex: 0 0 auto;
+}
+
+.fl-kpi__value {
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  margin-top: 2px;
+  line-height: 1.1;
+}
+
+.fl-kpi__label {
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  color: rgba(15, 23, 42, 0.55) !important;
+  font-weight: 800 !important;
+}
+
+/* Buttons */
+.btn-primary,
+.btn.btn-primary {
+  background: linear-gradient(135deg, var(--fl-primary) 0%, var(--fl-primary-2) 100%) !important;
+  border: 0 !important;
+  border-radius: 14px !important;
+  box-shadow: 0 10px 18px rgba(19, 185, 253, 0.20);
+}
+
+.btn-primary:hover {
+  filter: brightness(1.03);
+  transform: translateY(-1px);
+}
+
+.btn-danger {
+  border-radius: 14px !important;
+}
+
+.btn.btn-dark {
+  border-radius: 14px !important;
+}
+
+/* Inputs */
+.form-control {
+  border-radius: 14px !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  background: rgba(255, 255, 255, 0.96) !important;
+  color: var(--fl-text) !important;
+}
+
+.form-control:focus {
+  box-shadow: 0 0 0 0.2rem rgba(19, 185, 253, 0.22) !important;
+  border-color: rgba(19, 185, 253, 0.70) !important;
+}
+
+/* Tables */
+table.table {
+  background: var(--fl-surface);
+  border-radius: 16px;
+  overflow: hidden;
+  color: var(--fl-text);
+}
+
+table.table thead td,
+table.table thead th {
+  background: rgba(2, 86, 155, 0.08);
+  border-bottom: 1px solid var(--fl-border);
+  font-weight: 800;
+}
+
+table.table td,
+table.table th {
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+/* Footer */
+footer.bg-white.sticky-footer {
+  background: transparent !important;
+  color: rgba(15, 23, 42, 0.55);
+}
+
+footer .copyright span {
+  color: rgba(15, 23, 42, 0.55) !important;
+}
+
+/* Minor fixes for pages that use centered charts */
+canvas {
+  background: var(--fl-surface);
+  border-radius: var(--fl-radius);
+  box-shadow: var(--fl-shadow-sm);
+}
+
+/* Reduce the "washed out" look on charts section */
+center h4,
+center h1,
+center h3 {
+  color: var(--fl-text) !important;
+}

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Dashboard</title>
+</head>
+
+<body id="page-top">
+    <div id="wrapper">
+        <nav class="navbar navbar-dark align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0">
+            <div class="container-fluid d-flex flex-column p-0">
+                <a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0"
+                    href="index.html">
+                    <div class="sidebar-brand-icon rotate-n-15"><i class="fas fa-laugh-wink"></i></div>
+                    <div class="sidebar-brand-text mx-3"> <span>Flutter Server</span></div>
+                </a>
+                <hr class="sidebar-divider my-0">
+                <ul class="nav navbar-nav text-light" id="accordionSidebar">
+                    <li class="nav-item" role="presentation"><a class="nav-link active"
+                            href="index.html"><span>Home&nbsp;</span></a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="user.html"><span>User</span></a>
+                    </li>
+                    <li class="nav-item" role="presentation"><a class="nav-link"
+                            href="lesson.html"><span>Lessons</span></a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link"
+                            href="programs.html"><span>Programs</span></a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link"
+                            href="pending_request"><span>Feedback</span></a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link"
+                            href="notifycation.html"><span>Notification</span></a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="/"><span>Logout</span></a></li>
+
+                </ul>
+                <div class="text-center d-none d-md-inline"><button class="btn rounded-circle border-0"
+                        id="sidebarToggle" type="button"></button></div>
+            </div>
+        </nav>
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+                <nav class="navbar navbar-light navbar-expand bg-white shadow mb-4 topbar static-top">
+                    <div class="container-fluid"><button class="btn btn-link d-md-none rounded-circle mr-3"
+                            id="sidebarToggleTop" type="button"><i class="fas fa-bars"></i></button>
+
+                        <ul class="nav navbar-nav flex-nowrap ml-auto">
+                            <li class="nav-item dropdown no-arrow" role="presentation">
+                                <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link"
+                                        data-toggle="dropdown" aria-expanded="false" href="#"><span
+                                            class="d-none d-lg-inline mr-2 text-gray-600 small">Admin</span><img
+                                            class="border rounded-circle img-profile"
+                                            src="assets/img/avatars/user.png"></a>
+                                    <div class="dropdown-menu shadow dropdown-menu-right animated--grow-in" role="menu">
+                                        <div class="dropdown-divider"></div><a class="dropdown-item" role="presentation"
+                                            href="/"><i
+                                                class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Logout</a>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+                <div class="container-fluid">
+                    <div class="fl-page-header">
+                        <div>
+                            <h3 class="fl-page-title">Dashboard</h3>
+                            <p class="fl-page-subtitle">Overview of learners, lessons, and pending items</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <a href="user.html">
+                                <div class="card shadow border-left-success py-2 fl-kpi">
+                                    <div class="card-body">
+                                        <div class="fl-kpi__row">
+                                            <div>
+                                                <div class="fl-kpi__label mb-1">Total users</div>
+                                                <div class="fl-kpi__value">{{this.user}}</div>
+                                            </div>
+                                            <div class="fl-kpi__icon"><i class="fas fa-users"></i></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col">
+                            <a href="lesson.html">
+                                <div class="card shadow border-left-primary py-2 fl-kpi">
+                                    <div class="card-body">
+                                        <div class="fl-kpi__row">
+                                            <div>
+                                                <div class="fl-kpi__label mb-1">Total lessons</div>
+                                                <div class="fl-kpi__value">{{this.lesson}}</div>
+                                            </div>
+                                            <div class="fl-kpi__icon"><i class="fas fa-layer-group"></i></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col">
+                            <a href="/pending_request">
+                                <div class="card shadow border-left-warning py-2 fl-kpi">
+                                    <div class="card-body">
+                                        <div class="fl-kpi__row">
+                                            <div>
+                                                <div class="fl-kpi__label mb-1">Pending requests</div>
+                                                <div class="fl-kpi__value">{{this.qa}}</div>
+                                            </div>
+                                            <div class="fl-kpi__icon"><i class="fas fa-inbox"></i></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+                <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+                <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+                <script type="text/javascript"
+                    src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+                <link rel="stylesheet" type="text/css"
+                    href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+                <input id="list-lesson" style="display: none;" value="{{this.listLesson}}"></input>
+                <input id="list-Count" style="display: none;" value="{{this.listCount}}"></input>
+                <input id="list-lesson2" style="display: none;" value="{{this.listLesson2}}"></input>
+                <input id="list-Count2" style="display: none;" value="{{this.listCount2}}"></input>
+                {{!-- Thống kê All --}}
+                {{!-- <center>
+                    <canvas id="myChartAll"
+                        style="max-width: 1250px;width:100%;margin-top: 100px; margin-bottom: 10px"></canvas>
+
+                </center> --}}
+
+
+                <center style="margin: 100px 50px;">
+                    <div style="width: 100%; overflow-x: auto; overflow-y: hidden;">
+                        <div style="min-width: 3000px; height: 700px">
+                            <canvas id="myChartAll" height="700" width="0"></canvas>
+                        </div>
+                    </div>
+                    <h4 style="text-transform: uppercase; color: black;">Statistics of the number of learners per lesson
+                    </h4>
+                </center>
+
+                {{!-- TOp học nhiều nhất --}}
+                <center>
+                    <canvas id="myChart"
+                        style="width:100%;max-width: 800px;margin-top: 100px; margin-bottom: 10px"></canvas>
+                    <h4 style="text-transform: uppercase; color: black;">Top 10 most learned lesson</h4>
+                </center>
+
+                {{!-- TOp học ít nhất --}}
+                <center>
+                    <canvas id="myChart2"
+                        style="width:100%;max-width: 800px; margin-top: 100px; margin-bottom: 10px"></canvas>
+                    <h4 style="text-transform: uppercase; color: black;">Top 10 lessons learned the least</h4>
+                </center>
+
+
+
+                <script>
+
+
+                    var listLesson = document.getElementById('list-lesson').getAttribute("value");
+                    var listCount = document.getElementById('list-Count').getAttribute("value");
+                    var arrLesson = listLesson.split("/")
+                    var arrCount = listCount.split("/")
+                    var newArray = arrCount.concat(arrCount);
+                    var newArray2 = arrLesson.concat(arrLesson);
+                    arrLesson.pop()
+                    arrCount.pop()
+                    var color = ['Thistle', 'Teal', 'SteelBlue', 'SpringGreen', 'SkyBlue', 'SandyBrown', 'SaddleBrown', 'RebeccaPurple', 'OliveDrab']
+                    var color2 = ['green', 'yellow', 'red', 'blue', 'cyan', 'brown', 'violet', 'orange', 'purple', 'pink']
+                    var listColor = []
+                    for (var i = 0; i < arrLesson.length; i++) {
+                        listColor.push(color2[Math.floor(Math.random() * 10)])
+                    }
+
+                    var listLesson2 = document.getElementById('list-lesson2').getAttribute("value");
+                    var listCount2 = document.getElementById('list-Count2').getAttribute("value");
+                    var arrLesson2 = listLesson2.split("/")
+                    var arrCount2 = listCount2.split("/")
+                    arrLesson2.pop()
+                    arrCount2.pop()
+                    var arrLessonTop10 = arrLesson2.slice(0, 10)
+                    var arrCountTop10 = arrCount2.splice(0, 10)
+
+                    var arrLessonTop10Below = arrLesson2.splice(arrLesson2.length - 10)
+                    var arrCountTop10Below = arrCount2.splice(arrCount2.length - 10)
+
+                    arrCountTop10.push(0)
+
+                    new Chart("myChartAll", {
+                        type: "bar",
+                        data: {
+                            labels: arrLesson,
+                            datasets: [{
+                                backgroundColor: listColor,
+                                data: arrCount
+                            }]
+                        },
+                        options: {
+                            legend: { display: false },
+                            title: {
+                                display: false,
+                            }
+                        }
+                    });
+
+                    new Chart("myChart", {
+                        type: "bar",
+                        data: {
+                            labels: arrLessonTop10,
+                            datasets: [{
+                                backgroundColor: color2,
+                                data: arrCountTop10
+                            }]
+                        },
+                        options: {
+                            legend: { display: false },
+                            title: {
+                                display: true,
+                            }
+                        }
+                    });
+
+                    new Chart("myChart2", {
+                        type: "bar",
+                        data: {
+                            labels: arrLessonTop10Below,
+                            datasets: [{
+                                backgroundColor: color2.reverse(),
+                                data: arrCountTop10Below
+                            }]
+                        },
+                        options: {
+                            legend: { display: false },
+                            title: {
+                                display: true,
+                            }
+                        }
+                    });
+                </script>
+
+
+
+            </div>
+            <footer class="bg-white sticky-footer">
+                <div class="container my-auto">
+                    <div class="text-center my-auto copyright"><span>Copyright © Brand 2021</span></div>
+                </div>
+            </footer>
+        </div>
+    </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.15/js/dataTables.bootstrap.min.js"></script>
+    <script src="assets/js/Drag-and-Drop-File-Input.js"></script>
+    <script src="assets/js/File-Input---Beautiful-Input--Button-Approach-Jasny-Bootstrap.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.js"></script>
+    <script src="assets/js/Table-With-Search.js"></script>
+    <script src="assets/js/theme.js"></script>
+</body>
+
+</html>

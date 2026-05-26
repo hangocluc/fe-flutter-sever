@@ -1,0 +1,32 @@
+@startuml 14-admin-login
+!include ../_style.puml
+
+title Đăng nhập quản trị viên (Admin Web)
+
+actor "Quản trị viên" as Admin
+boundary "Giao diện hệ thống" as UI
+control "Hệ thống xử lý" as SYS
+
+autonumber
+
+Admin -> UI: Truy cập trang đăng nhập
+UI -> SYS: Chuyển yêu cầu
+SYS --> UI: Trả về kết quả
+UI -> UI: Hiển thị form đăng nhập
+
+Admin -> UI: Nhập email, mật khẩu và gửi
+UI -> SYS: Chuyển yêu cầu
+activate SYS
+
+alt [Đăng nhập hợp lệ]
+  SYS --> UI: Trả kết quả thành công
+  UI -> UI: Chuyển hướng trang chủ
+  UI --> Admin: Hiển thị dashboard
+else [Sai thông tin]
+  SYS --> UI: Trả kết quả lỗi
+  UI --> Admin: Hiển thị thông báo lỗi
+end
+
+deactivate SYS
+
+@enduml

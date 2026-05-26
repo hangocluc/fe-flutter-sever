@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>doan2222222</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+    <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
+    <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
+    <link rel="stylesheet" href="assets/fonts/simple-line-icons.min.css">
+    <link rel="stylesheet" href="assets/fonts/fontawesome5-overrides.min.css">
+    <link rel="stylesheet" href="assets/css/Community-ChatComments.css">
+    <link rel="stylesheet" href="assets/css/Data-Table-1.css">
+    <link rel="stylesheet" href="assets/css/Data-Table.css">
+    <link rel="stylesheet" href="assets/css/Drag-and-Drop-File-Input.css">
+    <link rel="stylesheet" href="assets/css/File-Input---Beautiful-Input--Button-Approach-Jasny-Bootstrap.css">
+    <link rel="stylesheet" href="assets/css/Forum---Thread-listing-1.css">
+    <link rel="stylesheet" href="assets/css/Forum---Thread-listing.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.15/css/dataTables.bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/List-item.css">
+    <link rel="stylesheet" href="assets/css/Responsive-Form-1.css">
+    <link rel="stylesheet" href="assets/css/Responsive-Form.css">
+    <link rel="stylesheet" href="assets/css/Table-With-Search-1.css">
+    <link rel="stylesheet" href="assets/css/Table-With-Search.css">
+</head>
+
+<body>
+    <div id="wrapper">
+        <nav class="navbar navbar-dark align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0">
+            <div class="container-fluid d-flex flex-column p-0">
+                <a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="index.html">
+                    <div class="sidebar-brand-icon rotate-n-15"><i class="fas fa-laugh-wink"></i></div>
+                    <div class="sidebar-brand-text mx-3" > <span>Flutter Server</span></div>
+                </a>
+                <hr class="sidebar-divider my-0">
+                <ul class="nav navbar-nav text-light" id="accordionSidebar">
+                    <li class="nav-item" role="presentation"><a class="nav-link"
+                            href="index.html"><span>Home&nbsp;</span></a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="user.html"><span>User</span></a>
+                    </li>
+                    <li class="nav-item" role="presentation"><a class="nav-link"
+                            href="lesson.html"><span>Lessons</span></a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link active"
+                            href="programs.html"><span>Programs</span></a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link"
+                                                                href="notifycation.html"><span>Notification</span></a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link"
+                            href="login.html"><span>Logout</span></a></li>
+                </ul>
+                <div class="text-center d-none d-md-inline"><button class="btn rounded-circle border-0"
+                        id="sidebarToggle" type="button"></button></div>
+            </div>
+        </nav>
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+                <div class="container">
+                    <div>
+                        <form method="POST" enctype="multipart/form-data" action="/add_program/import_program">
+                            <div class="form-group">
+                                <div id="formdiv">
+                                    <div class="form-row"
+                                        style="margin-right: 0px;margin-left: 0px;padding-top: 24px;margin-top: 60px;">
+                                        <div class="col-md-8 offset-md-1">
+                                            <p style="margin-left:2%;font-family:Roboto, sans-serif;font-size:24px;">
+                                                <strong>Name
+                                                </strong>
+                                            </p>
+                                        </div>
+                                        <div class="col-md-10 offset-md-1"><input class="form-control" type="text"
+                                                style="margin-left:0px;font-family:Roboto, sans-serif;" name="name"
+                                                required="">
+                                        </div>
+                                    </div>
+                                    <div class="form-row"
+                                        style="margin-right:0px;margin-left:0px;padding-top:24px;margin-top:-16px;">
+                                        <div class="col-md-8 offset-md-1">
+                                            <p style="margin-left:2%;font-family:Roboto, sans-serif;font-size:24px;">
+                                                <strong>Image</strong>
+                                            </p>
+                                        </div>
+                                        <div class="col-md-10 offset-md-1">
+                                            <div class="fileinput fileinput-new input-group" data-provides="fileinput">
+                                                <div class="form-control" data-trigger="fileinput"><i
+                                                        class="glyphicon glyphicon-file fileinput-exists"></i> <span
+                                                        class="fileinput-filename"></span></div>
+                                                <span class="input-group-addon btn btn-default btn-file"><span
+                                                        class="fileinput-new">Choose file</span><span
+                                                        class="fileinput-exists">Change</span><input type="file"
+                                                        name="image" accept=".png, .jpeg"></span>
+                                                <a href="#" class="input-group-addon btn btn-default fileinput-exists"
+                                                    data-dismiss="fileinput">Remove</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-row"
+                                        style="margin-right:0px;margin-left:0px;padding-top:24px;margin-top:-16px;">
+                                        <div class="col-md-8 offset-md-1">
+                                            <p style="margin-left:2%;font-family:Roboto, sans-serif;font-size:24px;">
+                                                <strong>Excel
+                                                    File</strong>
+                                            </p>
+                                        </div>
+                                        <div class="col-md-10 offset-md-1">
+                                            <div class="fileinput fileinput-new input-group" data-provides="fileinput">
+                                                <div class="form-control" data-trigger="fileinput"><i
+                                                        class="glyphicon glyphicon-file fileinput-exists"></i> <span
+                                                        class="fileinput-filename"></span></div>
+                                                <span class="input-group-addon btn btn-default btn-file"><span
+                                                        class="fileinput-new">Choose file</span><span
+                                                        class="fileinput-exists">Change</span>
+                                                    <input type="file" name="excel_file" accept=".xls, .xlsx"
+                                                        required /></span>
+                                                <a href="#" class="input-group-addon btn btn-default fileinput-exists"
+                                                    data-dismiss="fileinput">Remove</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-row" style="margin-right:0px;margin-left:0px;padding-top:24px;">
+                                        <div class="col-12 col-md-4 offset-md-4"> <button class="btn btn-primary"
+                                                style="margin-left: 5px; padding-left: 25px; padding-right: 25px; margin-top: 5px; margin-bottom: 5px; color: aliceblue;background-color: rgb(98,155,241);"
+                                                type="submit">THÊM</button></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <footer class="bg-white sticky-footer">
+                <div class="container my-auto">
+                    <div class="text-center my-auto copyright"><span>Copyright © Brand 2021</span></div>
+                </div>
+            </footer>
+        </div>
+    </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
+
+
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.15/js/dataTables.bootstrap.min.js"></script>
+    <script src="assets/js/Drag-and-Drop-File-Input.js"></script>
+    <script src="assets/js/File-Input---Beautiful-Input--Button-Approach-Jasny-Bootstrap.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.js"></script>
+    <script src="assets/js/Table-With-Search.js"></script>
+    <script src="assets/js/theme.js"></script>
+</body>
+
+</html>

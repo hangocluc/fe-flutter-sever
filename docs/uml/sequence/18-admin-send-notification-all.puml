@@ -1,0 +1,45 @@
+@startuml 18-admin-send-notification-all
+!include ../_style.puml
+
+title Admin gửi thông báo toàn hệ thống (FCM Topic)
+
+actor "Quản trị viên" as Admin
+boundary "Giao diện hệ thống" as UI
+control "Hệ thống xử lý" as SYS
+participant "Firebase FCM" as FCM
+
+autonumber
+
+Admin -> UI: Mở /notifycation.html
+UI -> SYS: Chuyển yêu cầu
+UI -> SYS: index()
+SYS --> UI: render('notifycation')
+
+Admin -> UI: Nhập title, text → Gửi tất cả
+UI -> SYS: Chuyển yêu cầu
+UI -> SYS: sendNotifiAllUser(req, res)
+activate SYS
+
+alt Thiếu title hoặc text
+  SYS --> UI: Trả kết quả
+else Hợp lệ
+  SYS -> SYS: sendToTopic(constance.topic, {title, body: text, data})
+  SYS -> FCM: messaging.send({topic: "all", notification, data})
+  alt Gửi thành công
+    FCM --> SYS: OK
+    SYS --> SYS: OK
+    SYS --> UI: HTTP 302 redirect /index.html
+  else Lỗi FCM
+    FCM --> SYS: error
+    SYS --> UI: Trả kết quả
+  end
+end
+
+deactivate SYS
+
+note over FCM
+  Topic mặc định: "all"
+  (constance/index.js)
+end note
+
+@enduml

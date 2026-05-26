@@ -1,0 +1,14 @@
+' Layout đẹp: mở hv-01-dang-nhap.drawio trong draw.io / diagrams.net
+' PlantUML tự bố cục use case kém
+
+
+@startuml hv-01-dang-nhap
+!include ../../_usecase-style.puml
+!include ../../_feature-layout.puml
+
+actor "Học viên" as HV
+usecase "Đăng nhập" as MAIN
+
+HV --> MAIN
+
+@enduml

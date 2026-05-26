@@ -1,0 +1,27 @@
+' Gộp tất cả Use Case theo tính năng — export batch
+' Chạy: plantuml all-features.puml
+
+!include ../system-use-case.puml
+
+' --- Quản trị viên ---
+!include admin/ad-01-dang-nhap.puml
+!include admin/ad-02-dang-xuat.puml
+!include admin/ad-03-quan-ly-chu-de.puml
+!include admin/ad-04-quan-ly-chuong-trinh.puml
+!include admin/ad-05-thong-ke.puml
+!include admin/ad-06-quan-ly-user.puml
+!include admin/ad-07-thong-bao.puml
+
+' --- Học viên ---
+!include hoc-vien/hv-01-dang-nhap.puml
+!include hoc-vien/hv-02-dang-xuat.puml
+!include hoc-vien/hv-03-chu-de.puml
+!include hoc-vien/hv-04-chi-tiet-chu-de.puml
+!include hoc-vien/hv-05-hoc-bai.puml
+!include hoc-vien/hv-06-lam-quiz.puml
+!include hoc-vien/hv-07-thao-luan.puml
+!include hoc-vien/hv-08-thong-tin-ca-nhan.puml
+!include hoc-vien/hv-09-bao-cao-cau-hoi.puml
+!include hoc-vien/hv-10-hien-thi-ket-qua.puml
+!include hoc-vien/hv-11-thong-ke.puml
+!include hoc-vien/hv-12-xep-hang.puml

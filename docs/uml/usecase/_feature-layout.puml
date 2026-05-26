@@ -1,0 +1,15 @@
+' Style mẫu luận văn — Quản lý lịch chiếu (không khung, mũi tên thẳng)
+left to right direction
+skinparam linetype polyline
+skinparam nodesep 80
+skinparam ranksep 50
+
+skinparam usecase {
+  FontStyle normal
+  FontSize 13
+}
+
+skinparam stereotype {
+  FontSize 11
+  FontStyle normal
+}

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Reply to user — Flutter Server</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+
+<body id="page-top">
+    <div id="wrapper">
+        <nav class="navbar navbar-dark align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0">
+            <div class="container-fluid d-flex flex-column p-0">
+                <a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="index.html">
+                    <div class="sidebar-brand-text mx-3"><span>Flutter Server</span></div>
+                </a>
+            </div>
+        </nav>
+
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+                <div class="container-fluid py-4">
+                    <a href="pending_request" class="btn btn-sm btn-light mb-3">&larr; Back</a>
+
+                    <div class="card shadow col-lg-8 mx-auto">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Reply to user</h6>
+                        </div>
+                        <div class="card-body">
+                            {{#unless smtpConfigured}}
+                            <div class="alert alert-warning small">
+                                SMTP not configured. Add <code>SMTP_USER</code> and <code>SMTP_PASS</code> (Gmail App Password) to <code>.env</code>.
+                                Push notification will still work if the user has an FCM token.
+                            </div>
+                            {{/unless}}
+                            <p class="text-muted small">
+                                Sends <strong>email</strong> to <code>{{email}}</code>
+                                {{#if tokenDevice}} and <strong>push notification</strong> to their device.{{else}}
+                                (no FCM token — email only).{{/if}}
+                            </p>
+
+                            <form method="post" action="/feed_back/sendMail">
+                                <input type="hidden" name="idQA" value="{{idQA}}" />
+                                <input type="hidden" name="tokenDevice" value="{{tokenDevice}}" />
+                                <input type="hidden" name="username" value="{{name}}" />
+                                <input type="hidden" name="email" value="{{email}}" />
+
+                                <div class="form-group">
+                                    <label>To</label>
+                                    <input class="form-control" type="email" value="{{email}}" readonly />
+                                </div>
+                                <div class="form-group">
+                                    <label>Subject</label>
+                                    <input class="form-control" type="text" name="subject" required
+                                        placeholder="Re: your feedback" />
+                                </div>
+                                <div class="form-group">
+                                    <label>Message</label>
+                                    <textarea class="form-control" name="message" rows="8" required
+                                        placeholder="Write your reply..."></textarea>
+                                </div>
+                                <button class="btn btn-primary" type="submit">Send reply</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+</body>
+
+</html>

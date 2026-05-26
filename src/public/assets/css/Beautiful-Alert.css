@@ -1,0 +1,32 @@
+.beautiful.alert {
+  border-width: 1px;
+  background-image: none;
+  border-color: transparent;
+  border-radius: 0px;
+  box-shadow: none;
+}
+
+.alert.alert-success.beautiful {
+  background-color: #abe7ed;
+  border-color: #abe7ed;
+  color: #27a4b0;
+}
+
+.alert.alert-info.beautiful.alert-info {
+  background-color: #e0ebf9;
+  border-color: #e0ebf9;
+  color: #327ad5;
+}
+
+.alert.alert-warning.beautiful {
+  background-color: #f9e491;
+  border-color: #f9e491;
+  color: #c29d0b;
+}
+
+.alert.alert-danger.beautiful {
+  background-color: #fbe1e3;
+  border-color: #fbe1e3;
+  color: #e73d4a;
+}
+

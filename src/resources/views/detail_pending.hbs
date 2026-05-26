@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Feedback detail — Flutter Server</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+
+<body id="page-top">
+    <div id="wrapper">
+        <nav class="navbar navbar-dark align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0">
+            <div class="container-fluid d-flex flex-column p-0">
+                <a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="index.html">
+                    <div class="sidebar-brand-icon rotate-n-15"><i class="fas fa-laugh-wink"></i></div>
+                    <div class="sidebar-brand-text mx-3"><span>Flutter Server</span></div>
+                </a>
+                <hr class="sidebar-divider my-0">
+                <ul class="nav navbar-nav text-light" id="accordionSidebar">
+                    <li class="nav-item"><a class="nav-link" href="pending_request"><span>Feedback</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.html"><span>Home</span></a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+                <div class="container-fluid py-4">
+                    <a href="pending_request" class="btn btn-sm btn-light mb-3">&larr; Back to list</a>
+
+                    {{#if resolved}}
+                    <div class="alert alert-success">Marked as resolved.{{#if email}} Email sent.{{/if}}{{#if push}} Push sent.{{/if}}</div>
+                    {{/if}}
+
+                    {{#each QA}}
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">{{this.title}}</h6>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>From:</strong> {{this.displayName}}
+                                {{#if this.replyEmail}} &lt;{{this.replyEmail}}&gt;{{/if}}
+                            </p>
+                            <p><strong>Message:</strong></p>
+                            <p class="border rounded p-3 bg-light">{{this.content}}</p>
+                            {{#if this.idQuestionId}}
+                            <p class="small text-muted mb-0">Question ID: <code>{{this.idQuestionId}}</code></p>
+                            {{/if}}
+                            {{#if this.lessonId}}
+                            <p class="small text-muted">Lesson ID: <code>{{this.lessonId}}</code></p>
+                            {{/if}}
+                            <p class="mt-2">
+                                <strong>Status:</strong>
+                                {{#if this.status}}<span class="badge badge-done">Resolved</span>
+                                {{else}}<span class="badge badge-warning">Pending</span>{{/if}}
+                            </p>
+
+                            <hr>
+                            <p class="text-muted small mb-2">
+                                <strong>Reply</strong> sends an <strong>email</strong> to the user and a
+                                <strong>push notification</strong> (if they registered FCM token in the app).
+                            </p>
+
+                            <div class="d-flex flex-wrap" style="gap: 0.5rem;">
+                                {{#unless this.status}}
+                                <form action="/pending_request/update-qa" method="post" class="d-inline">
+                                    <input type="hidden" name="id" value="{{this._id}}" />
+                                    <button type="submit" class="btn btn-success">Mark resolved</button>
+                                </form>
+                                {{/unless}}
+
+                                {{#if this.canReply}}
+                                <a class="btn btn-primary"
+                                    href="/nextfeedback?email={{this.replyEmail}}&id={{this._id}}">Reply (email + push)</a>
+                                {{else}}
+                                <span class="btn btn-secondary disabled" title="User has no Gmail in database">Reply unavailable</span>
+                                {{/if}}
+
+                                {{#if this.canEditQuestion}}
+                                <a class="btn btn-outline-secondary"
+                                    href="/lesson_detail_v2?questionId={{this.idQuestionId}}&idQA={{this._id}}">Edit question</a>
+                                {{/if}}
+
+                                <form action="/pending_request/delete-qa" method="post" class="d-inline"
+                                    onsubmit="return confirm('Delete this feedback?');">
+                                    <input type="hidden" name="id" value="{{this._id}}" />
+                                    <button type="submit" class="btn btn-outline-danger">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {{/each}}
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="assets/js/theme.js"></script>
+</body>
+
+</html>

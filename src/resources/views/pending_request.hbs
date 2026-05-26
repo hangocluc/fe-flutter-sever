@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Feedback — Flutter Server</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+    <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <style>
+        .feedback-table {
+            width: 100%;
+            min-width: 960px;
+        }
+
+        .feedback-table th,
+        .feedback-table td {
+            vertical-align: middle;
+            padding: 1rem 0.85rem;
+        }
+
+        .feedback-table .cell-message {
+            min-width: 200px;
+            max-width: 360px;
+            white-space: normal;
+            line-height: 1.5;
+        }
+
+        .id-chip {
+            display: inline-block;
+            font-family: ui-monospace, Menlo, monospace;
+            font-size: 0.78rem;
+            color: #4e555b;
+            background: #f8f9fc;
+            border: 1px solid #e3e6f0;
+            border-radius: 6px;
+            padding: 0.2rem 0.45rem;
+            margin: 0.15rem 0.25rem 0.15rem 0;
+            white-space: nowrap;
+        }
+
+        .ref-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .action-group {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 0.4rem;
+            min-width: 220px;
+        }
+
+        .action-group .btn {
+            white-space: nowrap;
+            margin: 0 !important;
+        }
+
+        .action-group form {
+            display: inline-flex;
+            margin: 0;
+        }
+
+        .badge-pending {
+            background: #f6c23e;
+            color: #1a1a1a;
+        }
+
+        .badge-done {
+            background: #1cc88a;
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body id="page-top">
+    <div id="wrapper">
+        <nav class="navbar navbar-dark align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0">
+            <div class="container-fluid d-flex flex-column p-0">
+                <a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0"
+                    href="index.html">
+                    <div class="sidebar-brand-icon rotate-n-15"><i class="fas fa-laugh-wink"></i></div>
+                    <div class="sidebar-brand-text mx-3"><span>Flutter Server</span></div>
+                </a>
+                <hr class="sidebar-divider my-0">
+                <ul class="nav navbar-nav text-light" id="accordionSidebar">
+                    <li class="nav-item"><a class="nav-link" href="index.html"><span>Home</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="user.html"><span>User</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="lesson.html"><span>Lessons</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="programs.html"><span>Programs</span></a></li>
+                    <li class="nav-item"><a class="nav-link active" href="pending_request"><span>Feedback</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="notifycation.html"><span>Notification</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="login.html"><span>Logout</span></a></li>
+                </ul>
+                <div class="text-center d-none d-md-inline">
+                    <button class="btn rounded-circle border-0" id="sidebarToggle" type="button"></button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+                <nav class="navbar navbar-light navbar-expand bg-white shadow mb-4 topbar static-top">
+                    <div class="container-fluid">
+                        <button class="btn btn-link d-md-none rounded-circle mr-3" id="sidebarToggleTop"
+                            type="button"><i class="fas fa-bars"></i></button>
+                        <ul class="nav navbar-nav flex-nowrap ml-auto">
+                            <li class="nav-item dropdown no-arrow">
+                                <a class="dropdown-toggle nav-link" href="#"><span
+                                        class="d-none d-lg-inline mr-2 text-gray-600 small">Admin</span></a>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+
+                <div class="container-fluid">
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <div>
+                            <h1 class="h3 mb-0 text-gray-800">Feedback</h1>
+                            <p class="text-muted mb-0 small">Reports from app · API <code>insert-lesson-feedback</code></p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-xl-4 col-md-6 mb-3">
+                            <div class="card border-left-primary shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                Lesson / Quiz</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{lessonCount}}</div>
+                                            <small class="text-warning">{{pendingLessonCount}} pending</small>
+                                        </div>
+                                        <div class="col-auto"><i
+                                                class="fas fa-question-circle fa-2x text-gray-300"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-4 col-md-6 mb-3">
+                            <div class="card border-left-warning shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                                System</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{systemCount}}</div>
+                                            <small class="text-muted">General (add-qa)</small>
+                                        </div>
+                                        <div class="col-auto"><i class="fas fa-cog fa-2x text-gray-300"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                            <h6 class="m-0 font-weight-bold text-primary">Lesson &amp; question feedback</h6>
+                            <span class="badge badge-primary">{{lessonCount}} items</span>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover feedback-table mb-0">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th style="min-width:120px">From</th>
+                                            <th style="min-width:160px">Question / Lesson</th>
+                                            <th>Message</th>
+                                            <th style="min-width:110px">Date</th>
+                                            <th style="min-width:90px">Status</th>
+                                            <th style="min-width:240px" class="text-right">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {{#each QIZ}}
+                                        <tr>
+                                            <td>
+                                                <strong>{{this.displayName}}</strong>
+                                                {{#if this.displaySub}}<br><small class="text-muted">{{this.displaySub}}</small>{{/if}}
+                                            </td>
+                                            <td>
+                                                <div class="ref-list">
+                                                {{#if this.idQuestionId}}
+                                                <div><span class="text-muted small">Q </span><span class="id-chip" title="{{this.idQuestionId}}">{{this.shortQuestionId}}</span></div>
+                                                {{/if}}
+                                                {{#if this.lessonId}}
+                                                <div><span class="text-muted small">Lesson </span><span class="id-chip" title="{{this.lessonId}}">{{this.shortLessonId}}</span></div>
+                                                {{/if}}
+                                                {{#unless this.idQuestionId}}{{#unless this.lessonId}}<span class="text-muted">—</span>{{/unless}}{{/unless}}
+                                                </div>
+                                            </td>
+                                            <td class="cell-message">{{this.content}}</td>
+                                            <td><small class="text-muted">{{this.createdAt}}</small></td>
+                                            <td>
+                                                {{#if this.status}}<span class="badge badge-done">Resolved</span>
+                                                {{else}}<span class="badge badge-pending">Pending</span>{{/if}}
+                                            </td>
+                                            <td>
+                                                <div class="action-group">
+                                                <a class="btn btn-sm btn-primary" href="/detail_pending?id={{this._id}}">View</a>
+                                                {{#if this.canEditQuestion}}
+                                                <a class="btn btn-sm btn-outline-secondary" href="/lesson_detail_v2?questionId={{this.idQuestionId}}&idQA={{this._id}}">Edit</a>
+                                                {{/if}}
+                                                <form action="pending_request/delete-qa" method="post" onsubmit="return confirm('Delete this feedback?');">
+                                                    <button class="btn btn-sm btn-outline-danger" type="submit" name="id" value="{{this._id}}">Delete</button>
+                                                </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {{else}}
+                                        <tr>
+                                            <td colspan="6" class="text-center text-muted py-5">No lesson feedback yet
+                                            </td>
+                                        </tr>
+                                        {{/each}}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-secondary">System feedback</h6>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover feedback-table mb-0">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th>From</th>
+                                            <th>Category</th>
+                                            <th>Platform</th>
+                                            <th>Message</th>
+                                            <th style="min-width:110px">Date</th>
+                                            <th style="min-width:90px">Status</th>
+                                            <th style="min-width:180px" class="text-right">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {{#each SYTEM}}
+                                        <tr>
+                                            <td><strong>{{this.displayName}}</strong></td>
+                                            <td><span class="badge badge-secondary">{{this.category}}</span></td>
+                                            <td>{{#if this.platform}}{{this.platform}}{{else}}—{{/if}}</td>
+                                            <td class="cell-message">{{this.content}}</td>
+                                            <td><small class="text-muted">{{this.createdAt}}</small></td>
+                                            <td>
+                                                {{#if this.status}}<span class="badge badge-done">Resolved</span>
+                                                {{else}}<span class="badge badge-pending">Pending</span>{{/if}}
+                                            </td>
+                                            <td>
+                                                <div class="action-group">
+                                                <a class="btn btn-sm btn-primary" href="/detail_pending?id={{this._id}}">View</a>
+                                                <form action="pending_request/delete-qa" method="post" onsubmit="return confirm('Delete?');">
+                                                    <button class="btn btn-sm btn-outline-danger" type="submit" name="id" value="{{this._id}}">Delete</button>
+                                                </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {{else}}
+                                        <tr>
+                                            <td colspan="7" class="text-center text-muted py-5">No system feedback</td>
+                                        </tr>
+                                        {{/each}}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <footer class="bg-white sticky-footer">
+                <div class="container my-auto">
+                    <div class="text-center my-auto copyright"><span>Flutter Server</span></div>
+                </div>
+            </footer>
+        </div>
+    </div>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.js"></script>
+    <script src="assets/js/theme.js"></script>
+</body>
+
+</html>

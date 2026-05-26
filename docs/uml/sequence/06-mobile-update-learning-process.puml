@@ -1,0 +1,49 @@
+@startuml 06-mobile-update-learning-process
+!include ../_style.puml
+
+title Cập nhật tiến độ học
+
+actor "Người dùng" as User
+boundary "Giao diện hệ thống" as UI
+control "Hệ thống xử lý" as SYS
+database "CSDL" as DB
+
+autonumber
+
+User -> UI: Hoàn thành bài / làm quiz
+UI -> SYS: Chuyển yêu cầu\n(update-process)
+activate SYS
+
+alt [Thiếu userId hoặc lessonId]
+  SYS --> UI: Trả kết quả lỗi
+  UI --> User: Hiển thị thông báo
+else [Đủ tham số]
+  SYS -> DB: Truy vấn Process\n(findOne userId + lessonId)
+  DB --> SYS: Trả về kết quả
+
+  alt [Chưa có bản ghi]
+    SYS -> DB: Thêm mới Process
+    DB --> SYS: Trả về kết quả
+    SYS --> UI: Trả kết quả thành công
+    UI --> User: Hiển thị trạng thái đã lưu
+  else [Đã có bản ghi]
+    SYS -> SYS: Cập nhật completed, status, quizMarked
+    SYS -> DB: Lưu Process
+    DB --> SYS: Trả về kết quả
+    SYS --> UI: Trả kết quả thành công
+    UI --> User: Hiển thị tiến độ mới
+  end
+end
+
+deactivate SYS
+
+group Truy vấn tiến độ
+  User -> UI: Xem tiến độ bài học
+  UI -> SYS: Chuyển yêu cầu\n(get-process)
+  SYS -> DB: Truy vấn dữ liệu
+  DB --> SYS: Trả về kết quả
+  SYS --> UI: Trả kết quả
+  UI --> User: Hiển thị tiến độ
+end
+
+@enduml

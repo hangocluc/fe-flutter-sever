@@ -1,0 +1,32 @@
+@startuml 03-mobile-login-api
+!include ../_style.puml
+
+title Đăng nhập API (Mobile)
+
+actor "Người dùng" as User
+boundary "Giao diện hệ thống" as UI
+control "Hệ thống xử lý" as SYS
+
+autonumber
+
+User -> UI: Nhập email, password
+UI -> SYS: Chuyển yêu cầu
+activate UI
+UI -> SYS: loginApi(req, res)
+activate SYS
+
+alt email == "admin" AND password == "admin"
+  SYS --> UI: HTTP 200\n{success: true, message: "success"}
+else Sai thông tin
+  SYS --> UI: HTTP 401\n{success: false, message: "Username or Password Invalid"}
+end
+
+deactivate SYS
+deactivate UI
+
+note right of SYS
+  Xác thực đơn giản (hardcode).
+  Admin Web dùng luồng riêng (đăng nhập Admin Web).
+end note
+
+@enduml

@@ -1,0 +1,55 @@
+@startuml database-erd-relations-only
+!include _erd-style.puml
+
+title Sơ đồ quan hệ (1-N và M-N — cần Graphviz)
+
+left to right direction
+
+entity users << (T,#D9D9D9) >>
+entity lessons << (T,#D9D9D9) >>
+entity topics << (T,#D9D9D9) >>
+entity quizzes << (T,#D9D9D9) >>
+entity questions << (T,#D9D9D9) >>
+entity programs << (T,#D9D9D9) >>
+entity program_details << (T,#D9D9D9) >>
+entity processes << (T,#D9D9D9) >>
+entity qas << (T,#D9D9D9) >>
+entity chats << (T,#D9D9D9) >>
+
+users -[hidden]right- processes
+processes -[hidden]right- lessons
+lessons -[hidden]down- topics
+topics -[hidden]down- quizzes
+quizzes -[hidden]down- questions
+lessons -[hidden]right- programs
+programs -[hidden]down- program_details
+users -[hidden]down- qas
+qas -[hidden]right- chats
+questions -[hidden]down- chats
+
+' M-N (bảng trung gian)
+users ||--o{ processes
+lessons ||--o{ processes
+
+' 1-N
+lessons ||--o{ topics
+lessons ||--o| quizzes
+lessons ||--o{ questions
+lessons ||--o{ qas
+
+quizzes ||--o{ questions
+quizzes ||--o{ chats
+
+programs ||--o{ program_details
+
+users ||--o{ qas
+users ||--o{ chats
+
+questions ||--o{ qas
+questions ||--o{ chats
+
+note bottom of processes
+  M-N: users ↔ lessons
+end note
+
+@enduml

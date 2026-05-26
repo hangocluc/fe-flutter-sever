@@ -1,0 +1,50 @@
+@startuml 07-mobile-update-score-rank
+!include ../_style.puml
+
+title Cập nhật điểm và bảng xếp hạng (Mobile)
+
+actor "Người dùng" as User
+boundary "Giao diện hệ thống" as UI
+control "Hệ thống xử lý" as SYS
+database "CSDL" as DB
+
+autonumber
+
+User -> UI: Hoàn thành quiz / nhận điểm
+UI -> SYS: Chuyển yêu cầu
+UI -> SYS: updateUser(req, res)
+activate SYS
+SYS -> DB: User.findOne / cập nhật mark
+DB --> SYS: user document
+SYS --> UI: Trả kết quả
+deactivate SYS
+
+User -> UI: Xem bảng xếp hạng
+UI -> SYS: Chuyển yêu cầu
+UI -> SYS: getRank()
+SYS -> DB: User.find().sort({mark: -1})
+DB --> SYS: top users
+SYS --> UI: Trả kết quả
+
+UI -> SYS: Chuyển yêu cầu
+UI -> SYS: getTop10Lesson()
+SYS -> DB: Process / User aggregate theo lesson
+DB --> SYS: top 10
+SYS --> UI: Trả kết quả
+
+UI -> SYS: Chuyển yêu cầu
+UI -> SYS: getUser()
+SYS -> DB: User.findOne({gmail})
+DB --> SYS: profile
+SYS --> UI: Trả kết quả
+
+UI -> SYS: Chuyển yêu cầu
+UI -> SYS: getDailyScore()
+SYS -> DB: truy vấn điểm theo ngày
+SYS --> UI: Trả kết quả
+
+UI -> SYS: Chuyển yêu cầu
+UI -> SYS: getMarkProfile()
+SYS --> UI: Trả kết quả
+
+@enduml

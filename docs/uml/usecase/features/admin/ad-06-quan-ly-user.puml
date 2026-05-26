@@ -1,0 +1,29 @@
+@startuml ad-06-quan-ly-user
+!include ../../_usecase-style.puml
+!include ../../_feature-layout.puml
+
+actor "Quản trị viên" as AD
+
+usecase "Quản lý user" as MAIN
+usecase "Xem danh sách người dùng" as UC1
+usecase "Xem chi tiết người dùng" as UC2
+usecase "Cập nhật người dùng" as UC3
+usecase "Đăng nhập" as LOGIN
+
+AD --> MAIN
+UC1 ..> MAIN : <<extend>>
+UC1 ..> LOGIN : <<include>>
+UC2 ..> MAIN : <<extend>>
+UC2 ..> LOGIN : <<include>>
+UC3 ..> MAIN : <<extend>>
+UC3 ..> LOGIN : <<include>>
+
+UC1 -[hidden]down- UC2
+UC2 -[hidden]down- UC3
+AD -[hidden]right- MAIN
+MAIN -[hidden]right- UC2
+UC1 -[hidden]right- LOGIN
+UC2 -[hidden]right- LOGIN
+UC3 -[hidden]right- LOGIN
+
+@enduml

@@ -1,0 +1,41 @@
+@startuml 02-mobile-register-user
+!include ../_style.puml
+
+title Đăng ký / cập nhật người dùng và FCM token
+
+actor "Người dùng" as User
+boundary "Giao diện hệ thống" as UI
+control "Hệ thống xử lý" as SYS
+database "CSDL" as DB
+
+autonumber
+
+User -> UI: Mở ứng dụng / đăng nhập
+UI -> SYS: Chuyển yêu cầu
+activate SYS
+
+alt [Thiếu gmail hoặc token]
+  SYS --> UI: Trả kết quả lỗi
+  UI --> User: Hiển thị thông báo
+else [Hợp lệ]
+  SYS -> DB: Truy vấn User theo gmail
+  DB --> SYS: Trả về kết quả
+
+  alt [User đã tồn tại]
+    opt [Có thay đổi thông tin]
+      SYS -> DB: Cập nhật User
+      DB --> SYS: Trả về kết quả
+    end
+    SYS --> UI: Trả kết quả thành công
+    UI --> User: Hiển thị trạng thái
+  else [User mới]
+    SYS -> DB: Thêm mới User
+    DB --> SYS: Trả về kết quả
+    SYS --> UI: Trả kết quả thành công
+    UI --> User: Hiển thị trạng thái
+  end
+end
+
+deactivate SYS
+
+@enduml

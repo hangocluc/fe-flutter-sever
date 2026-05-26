@@ -1,0 +1,20 @@
+' Layout đẹp: mở hv-08-thong-tin-ca-nhan.drawio trong draw.io / diagrams.net
+' PlantUML tự bố cục use case kém
+
+
+@startuml hv-08-thong-tin-ca-nhan
+!include ../../_usecase-style.puml
+!include ../../_feature-layout.puml
+
+actor "Học viên" as HV
+
+usecase "Thông tin cá nhân" as MAIN
+usecase "Đăng nhập" as LOGIN
+
+HV --> MAIN
+MAIN ..> LOGIN : <<include>>
+
+HV -[hidden]right- MAIN
+MAIN -[hidden]right- LOGIN
+
+@enduml

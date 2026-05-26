@@ -1,0 +1,23 @@
+' Layout đẹp: mở hv-03-chu-de.drawio trong draw.io / diagrams.net
+' PlantUML tự bố cục use case kém
+
+
+@startuml hv-03-chu-de
+!include ../../_usecase-style.puml
+!include ../../_feature-layout.puml
+
+actor "Học viên" as HV
+
+usecase "Chủ đề" as MAIN
+usecase "Xem danh sách bài học" as UC1
+usecase "Đăng nhập" as LOGIN
+
+HV --> MAIN
+UC1 ..> MAIN : <<extend>>
+UC1 ..> LOGIN : <<include>>
+
+HV -[hidden]right- MAIN
+MAIN -[hidden]right- UC1
+UC1 -[hidden]right- LOGIN
+
+@enduml

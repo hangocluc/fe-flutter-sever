@@ -1,0 +1,28 @@
+' Layout đẹp: mở hv-04-chi-tiet-chu-de.drawio trong draw.io / diagrams.net
+' PlantUML tự bố cục use case kém
+
+
+@startuml hv-04-chi-tiet-chu-de
+!include ../../_usecase-style.puml
+!include ../../_feature-layout.puml
+
+actor "Học viên" as HV
+
+usecase "Chi tiết chủ đề" as MAIN
+usecase "Xem topic bài học" as UC1
+usecase "Xem quiz / câu hỏi" as UC2
+usecase "Đăng nhập" as LOGIN
+
+HV --> MAIN
+UC1 ..> MAIN : <<extend>>
+UC2 ..> MAIN : <<extend>>
+UC1 ..> LOGIN : <<include>>
+UC2 ..> LOGIN : <<include>>
+
+UC1 -[hidden]down- UC2
+HV -[hidden]right- MAIN
+MAIN -[hidden]right- UC2
+UC1 -[hidden]right- LOGIN
+UC2 -[hidden]right- LOGIN
+
+@enduml

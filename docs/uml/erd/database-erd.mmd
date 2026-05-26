@@ -1,0 +1,117 @@
+%% Lược đồ CSDL — Mermaid (preview không cần Graphviz)
+%% VS Code: extension "Markdown Preview Mermaid Support" hoặc mermaid.live
+
+erDiagram
+    users {
+        ObjectId _id PK
+        string gmail
+        string tokenDevice
+        string username
+        string imageUrl
+        number mark
+    }
+
+    lessons {
+        ObjectId _id PK
+        string title
+        number totalTopic
+    }
+
+    topics {
+        ObjectId _id PK
+        ObjectId lessonId FK
+        string title
+        string content
+        string videoLink
+    }
+
+    quizzes {
+        ObjectId _id PK
+        ObjectId lessonId FK
+        string name
+    }
+
+    questions {
+        ObjectId _id PK
+        string quizId FK
+        ObjectId lessonId FK
+        number STT
+        string question
+        array answer
+        string correctAnswer
+    }
+
+    programs {
+        ObjectId _id PK
+        string name
+        string image
+    }
+
+    program_details {
+        ObjectId _id PK
+        string programId FK
+        string title
+        string content
+    }
+
+  %% Bảng trung gian: giải quyết M-N users ↔ lessons (như movie_genre)
+    processes {
+        ObjectId _id PK
+        string userId FK
+        ObjectId lessonId FK
+        array completed
+        number status
+        number quizStatus
+        number quizMarked
+        string dateTime
+        string lastModify
+    }
+
+    qas {
+        ObjectId _id PK
+        string userId FK
+        string user
+        string title
+        string content
+        string idQuestionId FK
+        string lessonId FK
+        string category
+        string platform
+        boolean status
+        boolean type
+        date createdAt
+    }
+
+    chats {
+        ObjectId _id PK
+        string questionId FK
+        string userId FK
+        string username
+        string imageUrl
+        string quizId FK
+        number vote
+        string message
+        string date
+        array userLiked
+    }
+
+  %% M-N (hai nhánh 1-N vào bảng trung gian)
+    users ||--o{ processes : "userId (M-N)"
+    lessons ||--o{ processes : "lessonId (M-N)"
+
+  %% 1-N
+    lessons ||--o{ topics : lessonId
+    lessons ||--o| quizzes : lessonId
+    lessons ||--o{ questions : lessonId
+    lessons ||--o{ qas : lessonId
+
+    quizzes ||--o{ questions : quizId
+    quizzes ||--o{ chats : quizId
+
+    programs ||--o{ program_details : programId
+
+    users ||--o{ qas : userId
+    users ||--o{ chats : userId
+
+    questions ||--o{ qas : idQuestionId
+    questions ||--o{ chats : questionId

@@ -1,0 +1,5 @@
+{
+  "plantuml.commandArgs": [],
+  "plantuml.includepaths": ["docs/uml", "docs/uml/erd"],
+  "plantuml.graphvizDot": "/usr/local/bin/dot"
+}

@@ -1,0 +1,29 @@
+' ============================================================
+' Gộp tất cả Sequence Diagram — export / preview batch
+' Chạy: plantuml all-diagrams.puml
+' Một số tool chỉ import từng @startuml block riêng lẻ.
+' ============================================================
+
+!include sequence/01-server-bootstrap.puml
+!include sequence/02-mobile-register-user.puml
+!include sequence/03-mobile-login-api.puml
+!include sequence/04-mobile-fetch-lesson-content.puml
+!include sequence/05-mobile-fetch-program.puml
+!include sequence/06-mobile-update-learning-process.puml
+!include sequence/07-mobile-update-score-rank.puml
+!include sequence/08-mobile-qa-feedback.puml
+!include sequence/09-mobile-chat-rest.puml
+!include sequence/10-socket-realtime-chat.puml
+!include sequence/11-socket-like-comment.puml
+!include sequence/12-mobile-push-notification.puml
+!include sequence/13-cron-study-reminder.puml
+!include sequence/14-admin-login.puml
+!include sequence/15-admin-import-lesson-excel.puml
+!include sequence/16-admin-import-program.puml
+!include sequence/17-admin-manage-qa-pending.puml
+!include sequence/18-admin-send-notification-all.puml
+!include sequence/19-admin-feedback-reply.puml
+!include sequence/20-admin-logout.puml
+
+!include usecase/system-use-case.puml
+!include usecase/features/all-features.puml

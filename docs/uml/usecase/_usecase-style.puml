@@ -1,0 +1,73 @@
+' Style Use Case — đen trắng, luận văn UML
+' Include: !include _usecase-style.puml
+
+skinparam style strictuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam handwritten false
+
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+skinparam defaultFontSize 14
+skinparam defaultFontStyle bold
+
+skinparam title {
+  FontColor black
+  FontSize 18
+  FontStyle bold
+  BorderColor white
+  BackgroundColor white
+}
+
+skinparam actor {
+  BackgroundColor white
+  BorderColor black
+  FontColor black
+  FontSize 14
+  FontStyle bold
+  BorderThickness 2
+}
+
+skinparam usecase {
+  BackgroundColor white
+  BorderColor black
+  FontColor black
+  FontSize 13
+  FontStyle bold
+  BorderThickness 1
+}
+
+skinparam rectangle {
+  BackgroundColor white
+  BorderColor black
+  FontColor black
+  FontSize 14
+  FontStyle bold
+  BorderThickness 2
+}
+
+skinparam package {
+  BackgroundColor white
+  BorderColor black
+  FontColor black
+  FontSize 14
+  FontStyle bold
+  BorderThickness 1
+}
+
+skinparam arrow {
+  Color black
+  FontColor black
+  FontSize 12
+  FontStyle bold
+  Thickness 1
+}
+
+skinparam note {
+  BackgroundColor white
+  BorderColor black
+  FontColor black
+  FontSize 12
+  FontStyle bold
+}

@@ -1,0 +1,33 @@
+' Layout đẹp: mở hv-07-thao-luan.drawio trong draw.io / diagrams.net
+' PlantUML tự bố cục use case kém
+
+
+@startuml hv-07-thao-luan
+!include ../../_usecase-style.puml
+!include ../../_feature-layout.puml
+
+actor "Học viên" as HV
+
+usecase "Thảo luận" as MAIN
+usecase "Bình luận bài học" as UC1
+usecase "Chat realtime" as UC2
+usecase "Like bình luận" as UC3
+usecase "Đăng nhập" as LOGIN
+
+HV --> MAIN
+UC1 ..> MAIN : <<extend>>
+UC2 ..> MAIN : <<extend>>
+UC3 ..> MAIN : <<extend>>
+UC1 ..> LOGIN : <<include>>
+UC2 ..> LOGIN : <<include>>
+UC3 ..> LOGIN : <<include>>
+
+UC1 -[hidden]down- UC2
+UC2 -[hidden]down- UC3
+HV -[hidden]right- MAIN
+MAIN -[hidden]right- UC2
+UC1 -[hidden]right- LOGIN
+UC2 -[hidden]right- LOGIN
+UC3 -[hidden]right- LOGIN
+
+@enduml

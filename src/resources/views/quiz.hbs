@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Quiz</title>
+</head>
+
+<body id="page-top">
+    <div id="wrapper">
+        <nav class="navbar navbar-dark align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0">
+            <div class="container-fluid d-flex flex-column p-0">
+
+                <a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="index.html">
+                    <div class="sidebar-brand-icon rotate-n-15"><i class="fas fa-laugh-wink"></i></div>
+                    <div class="sidebar-brand-text mx-3" > <span>Flutter Server</span></div>
+                </a>
+
+                <hr class="sidebar-divider my-0">
+                <ul class="nav navbar-nav text-light" id="accordionSidebar">
+                    <li class="nav-item" role="presentation"><a class="nav-link"
+                            href="index.html"><span>Home&nbsp;</span></a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="user.html"><span>User</span></a>
+                    </li>
+                    <li class="nav-item" role="presentation"><a class="nav-link active"
+                            href="quiz.html"><span>Lessons</span></a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link"
+                            href="programs.html"><span>Programs</span></a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link"
+                            href="notifycation.html"><span>Notification</span></a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link"
+                            href="import.html"><span>Import</span></a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link"
+                            href="login.html"><span>Logout</span></a></li>
+                </ul>
+                <div class="text-center d-none d-md-inline">
+                    <button class="btn rounded-circle border-0" id="sidebarToggle" type="button"></button>
+                </div>
+            </div>
+        </nav>
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+                <nav class="navbar navbar-light navbar-expand bg-white shadow mb-4 topbar static-top">
+                    <div class="container-fluid">
+                        <button class="btn btn-link d-md-none rounded-circle mr-3" id="sidebarToggleTop"
+                            type="button"><i class="fas fa-bars"></i></button>
+                        <form
+                            class="form-inline d-none d-sm-inline-block mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+                            <div class="input-group"><input class="bg-light form-control border-0 small" type="text"
+                                    placeholder="Search for ...">
+                                <div class="input-group-append">
+                                    <button class="btn btn-primary py-0" type="button"><i
+                                            class="fas fa-search"></i></button>
+                                </div>
+                            </div>
+                        </form>
+                        <ul class="nav navbar-nav flex-nowrap ml-auto">
+                            <li class="nav-item dropdown no-arrow" role="presentation">
+                                <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link"
+                                        data-toggle="dropdown" aria-expanded="false" href="#"><span
+                                            class="d-none d-lg-inline mr-2 text-gray-600 small">Admin</span><img
+                                            class="border rounded-circle img-profile"
+                                            src="assets/img/avatars/user.png"></a>
+                                    <div class="dropdown-menu shadow dropdown-menu-right animated--grow-in" role="menu">
+
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" role="presentation" href="/"><i
+                                                class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Logout</a>
+
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+                <a class="btn btn-primary btn-icon-split" role="button"
+                    style="margin-left: 10px;padding-bottom: 13px;padding-top: 13px;"><span class="text-white text">ADD
+                        LESSON</span></a>
+                <div class="col-md-12 search-table-col" style="margin-top: 10px;">
+                    <div class="form-group pull-right col-lg-4"><input type="text" class="search form-control"
+                            placeholder="Search by typing here.."></div>
+                    <span class="counter pull-right"></span>
+                    <div class="table-responsive table-bordered table table-hover table-bordered results">
+                        <table class="table table-bordered table-hover">
+                            <thead class="bill-header cs">
+                                <tr>
+                                    <th id="trs-hd" class="col-lg-1">Lesson</th>
+                                    <th id="trs-hd" class="col-lg-2">Number of Topics</th>
+                                    <th id="trs-hd" class="col-lg-3">Number of Learners</th>
+                                    <th id="trs-hd" class="col-lg-2">Have Quiz</th>
+                                    <th id="trs-hd" class="col-lg-2">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="text-center">What is Flutter</td>
+                                    <td class="text-center">3</td>
+                                    <td class="text-center">113</td>
+                                    <td class="text-center">True</td>
+                                    <td>
+                                        <button class="btn btn-success" style="margin-left: 5px;" type="submit"><i
+                                                class="fa fa-pencil" style="font-size: 15px;"></i></button>
+                                        <button class="btn btn-danger" style="margin-left: 5px;" type="submit"><i
+                                                class="fa fa-trash" style="font-size: 15px;"></i></button>
+                                        <a class="btn btn-danger" role="button"
+                                            style="margin-left: 5px;background-color: rgb(98,155,241);"
+                                            href="lesson_detail.html"><i class="fa fa-info-circle"
+                                                style="font-size: 15px;"></i></a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <footer class="bg-white sticky-footer">
+                <div class="container my-auto">
+                    <div class="text-center my-auto copyright"><span>Copyright © Brand 2021</span></div>
+                </div>
+            </footer>
+        </div>
+    </div>
+    <a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.15/js/dataTables.bootstrap.min.js"></script>
+    <script src="assets/js/File-Input---Beautiful-Input--Button-Approach-Jasny-Bootstrap.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.js"></script>
+    <script src="assets/js/Table-With-Search.js"></script>
+    <script src="assets/js/theme.js"></script>
+</body>
+
+</html>

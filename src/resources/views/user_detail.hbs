@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>User</title>
+</head>
+
+<body id="page-top">
+    <div id="wrapper">
+        <nav class="navbar navbar-dark align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0">
+            <div class="container-fluid d-flex flex-column p-0">
+                <a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="index.html">
+                    <div class="sidebar-brand-icon rotate-n-15"><i class="fas fa-laugh-wink"></i></div>
+                    <div class="sidebar-brand-text mx-3" > <span>Flutter Server</span></div>
+                </a>
+                <hr class="sidebar-divider my-0">
+                <ul class="nav navbar-nav text-light" id="accordionSidebar">
+                    <li class="nav-item" role="presentation"><a class="nav-link"
+                            href="index.html"><span>Home&nbsp;</span></a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link active"
+                            href="user.html"><span>User</span></a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link"
+                            href="lesson.html"><span>Lessons</span></a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link"
+                            href="programs.html"><span>Programs</span></a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link"
+                            href="login.html"><span>Logout</span></a></li>
+                </ul>
+                <div class="text-center d-none d-md-inline"><button class="btn rounded-circle border-0"
+                        id="sidebarToggle" type="button"></button></div>
+            </div>
+        </nav>
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+                <nav class="navbar navbar-light navbar-expand bg-white shadow mb-4 topbar static-top">
+                    <div class="container-fluid"><button class="btn btn-link d-md-none rounded-circle mr-3"
+                            id="sidebarToggleTop" type="button"><i class="fas fa-bars"></i></button>
+                        <ul class="nav navbar-nav flex-nowrap ml-auto">
+                            <li class="nav-item dropdown no-arrow" role="presentation">
+                                <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link"
+                                        data-toggle="dropdown" aria-expanded="false" href="#"><span
+                                            class="d-none d-lg-inline mr-2 text-gray-600 small">Admin</span><img
+                                            class="border rounded-circle img-profile"
+                                            src="assets/img/avatars/user.png"></a>
+                                    <div class="dropdown-menu shadow dropdown-menu-right animated--grow-in" role="menu">
+                                        <div class="dropdown-divider"></div><a class="dropdown-item" role="presentation"
+                                            href="#"><i
+                                                class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Logout</a>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+                <div class="container-fluid">
+                    <center>
+                        <div class="text-center border rounded-0 shadow-sm profile-box"
+                            style="background-color: #ffffff;margin: 5px;">
+                            <div
+                                style="height: 50px;background-image: url(&quot;assets/img/bg-pattern.png&quot;);background-color: rgba(54,162,177,0);">
+                            </div>
+                            <div><img class="rounded-circle" src="{{user.imageUrl}}" width="120px" height="120px"
+                                    style="background-color: rgb(255,255,255);padding: 2px;"></div>
+                            <div style="height: 80px;">
+                                <h3 style="font-weight: bold;color: steelblue;margin-top: 20px;">{{user.username}}</h3>
+                                <p style="font-size: 14px;">{{user.gmail}}</p>
+                            </div>
+                            <p>Total score: {{this.totalScore}}</p>
+
+                            <center>
+                                <div style="max-width: 900px; text-align: center; margin-top: 50px;">
+                                    <h5 style="float: left;">Statistics of lessons learned</h5>
+                                    <table class="table">
+                                        <thead style="background-color: steelblue;">
+                                            <tr>
+                                                <th scope="col">
+                                                    <h5 style="color: white;">Lesson</h5>
+                                                </th>
+                                                <th scope="col">
+                                                    <h5 style="color: white;">Topic Learned</h5>
+                                                </th>
+                                                <th scope="col">
+                                                    <h5 style="color: white;">Quiz Mark</h5>
+                                                </th>
+                                                <th scope="col">
+                                                    <h5 style="color: white;">Date</h5>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {{#each daHoc}}
+                                            <tr>
+                                                <td>{{this.title}}</td>
+                                                <td>{{this.topic}}</td>
+                                                <td>{{this.score}}</td>
+                                                <td>{{this.lastModify}}</td>
+                                            </tr>
+                                            {{/each}}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <script
+                                    src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+                                <script type="text/javascript"
+                                    src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+                                <script type="text/javascript"
+                                    src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+                                <script type="text/javascript"
+                                    src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+                                <link rel="stylesheet" type="text/css"
+                                    href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+                                <center>
+                                    <canvas id="myChart2"
+                                        style="width:100%;max-width: 950px; margin-top: 100px; margin-bottom: 50px"></canvas>
+                                </center>
+                                <input id="list-lesson-below" style="display: none;" value="{{this.listTime}}"></input>
+                                <input id="list-Count-below" style="display: none;" value="{{this.score}}"></input>
+                                <script>
+                                    var listTime = document.getElementById('list-lesson-below').getAttribute("value");
+                                    var listScore = document.getElementById('list-Count-below').getAttribute("value");
+                                    var arrTime = listTime.split("-")
+                                    var arrCount = listScore.split("-")
+                                    var color = ['green', 'yellow', 'red', 'blue', 'cyan', 'brown', 'violet']
+                                    arrTime.pop()
+                                    arrCount.pop()
+                                    new Chart("myChart2", {
+                                        type: "bar",
+                                        data: {
+                                            labels: arrTime,
+                                            datasets: [{
+                                                backgroundColor: color,
+                                                data: arrCount
+                                            }]
+                                        },
+                                        options: {
+                                            legend: { display: false },
+                                            title: {
+                                                display: true,
+                                                text: "Quiz score statistics for the last 7 days"
+                                            }
+                                        }
+                                    });
+                                </script>
+                            </center>
+                        </div>
+                    </center>
+                </div>
+
+
+            </div>
+            <footer class=" bg-white sticky-footer">
+                <div class="container my-auto">
+                    <div class="text-center my-auto copyright"><span>Copyright © Brand
+                            2021</span></div>
+                </div>
+            </footer>
+        </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
+    </div>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.15/js/dataTables.bootstrap.min.js"></script>
+    <script src="assets/js/Drag-and-Drop-File-Input.js"></script>
+    <script src="assets/js/File-Input---Beautiful-Input--Button-Approach-Jasny-Bootstrap.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.js"></script>
+    <script src="assets/js/Table-With-Search.js"></script>
+    <script src="assets/js/theme.js"></script>
+</body>
+
+</html>

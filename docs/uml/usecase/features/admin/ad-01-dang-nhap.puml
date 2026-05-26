@@ -1,0 +1,14 @@
+' Layout đẹp: mở ad-01-dang-nhap.drawio trong draw.io / diagrams.net
+' PlantUML tự bố cục use case kém
+
+
+@startuml ad-01-dang-nhap
+!include ../../_usecase-style.puml
+!include ../../_feature-layout.puml
+
+actor "Quản trị viên" as AD
+usecase "Đăng nhập" as MAIN
+
+AD --> MAIN
+
+@enduml
