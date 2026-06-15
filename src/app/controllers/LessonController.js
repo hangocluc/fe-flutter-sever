@@ -154,6 +154,13 @@ class LessonController {
     return String(link).trim();
   }
 
+  _normalizeImportText(value) {
+    if (value == null) {
+      return '';
+    }
+    return String(value).trim();
+  }
+
   // Sheet 1 Lesson: id, title, quizName
   // Sheet 2 Topics: lesson_id → Lesson.id, title, content, videoLink
   // Sheet 3 Questions: lesson_id → Lesson.id, question, answerA-D, correctAnswer (chữ đầy đủ)
@@ -233,42 +240,81 @@ class LessonController {
 
         let lesson = existingByTitle.get(title);
         const isNewLesson = !lesson;
-
-        if (isNewLesson) {
-          lesson = await Lesson({
-            title,
-            totalTopic: topicsForLesson.length,
-          }).save();
-          existingByTitle.set(title, lesson);
-          created += 1;
-        } else {
-          updated += 1;
-        }
+        let quiz = null;
 
         const quizName =
           row.quizName != null && String(row.quizName).trim() !== ''
             ? String(row.quizName).trim()
             : `Quiz ${title}`;
 
-        let quiz = await Quiz.findOne({ lessonId: lesson._id });
-        if (!quiz) {
-          quiz = await Quiz({
-            lessonId: lesson._id,
-            name: quizName,
-          }).save();
+        const existingTopicTitles = new Set();
+        const existingQuestionTexts = new Set();
+        const existingQuestionStts = new Set();
+        let questionOrder = 0;
+
+        if (lesson) {
+          const existingTopics = await Topic.find(
+            { lessonId: lesson._id },
+            { title: 1 },
+          );
+          for (const t of existingTopics) {
+            existingTopicTitles.add(this._normalizeImportText(t.title));
+          }
+
+          quiz = await Quiz.findOne({ lessonId: lesson._id });
+          if (quiz) {
+            const existingQuestions = await Question.find(
+              { quizId: String(quiz._id) },
+              { question: 1, STT: 1 },
+            );
+            for (const q of existingQuestions) {
+              existingQuestionTexts.add(this._normalizeImportText(q.question));
+              if (q.STT != null && !Number.isNaN(Number(q.STT))) {
+                existingQuestionStts.add(Number(q.STT));
+              }
+            }
+            questionOrder = existingQuestions.length;
+          }
         }
 
+        const ensureLessonAndQuiz = async () => {
+          if (!lesson) {
+            lesson = await Lesson({
+              title,
+              totalTopic: 0,
+            }).save();
+            existingByTitle.set(title, lesson);
+          }
+          if (!quiz) {
+            quiz = await Quiz.findOne({ lessonId: lesson._id });
+            if (!quiz) {
+              quiz = await Quiz({
+                lessonId: lesson._id,
+                name: quizName,
+              }).save();
+            }
+          }
+        };
+
+        let lessonTopicsAdded = 0;
         for (const t of topicsForLesson) {
+          const topicTitle = this._normalizeImportText(t.title);
+          if (!topicTitle || existingTopicTitles.has(topicTitle)) {
+            continue;
+          }
+          await ensureLessonAndQuiz();
           await Topic({
             lessonId: lesson._id,
             title: t.title,
             content: t.content,
             videoLink: this._topicVideoLink(t),
           }).save();
+          existingTopicTitles.add(topicTitle);
+          lessonTopicsAdded += 1;
           topicsAdded += 1;
         }
 
-        if (!isNewLesson && topicsForLesson.length > 0) {
+        if (lesson && lessonTopicsAdded > 0) {
           const totalTopics = await Topic.countDocuments({ lessonId: lesson._id });
           await Lesson.updateOne(
             { _id: lesson._id },
@@ -276,30 +322,60 @@ class LessonController {
           );
         }
 
-        const existingQuestionCount = await Question.countDocuments({
-          quizId: String(quiz._id),
-        });
-        let questionOrder = existingQuestionCount;
-
+        let lessonQuestionsAdded = 0;
         for (const q of questionsForLesson) {
+          const questionText = this._normalizeImportText(q.question);
+          if (!questionText || existingQuestionTexts.has(questionText)) {
+            continue;
+          }
+
+          const explicitStt =
+            q.STT != null && String(q.STT).trim() !== ''
+              ? Number(q.STT)
+              : null;
+          if (
+            explicitStt != null &&
+            !Number.isNaN(explicitStt) &&
+            existingQuestionStts.has(explicitStt)
+          ) {
+            continue;
+          }
+
+          await ensureLessonAndQuiz();
           questionOrder += 1;
           const answers = this._buildAnswers(q);
+          const stt =
+            explicitStt != null && !Number.isNaN(explicitStt)
+              ? explicitStt
+              : questionOrder;
+
           await Question({
             quizId: quiz._id,
-            STT:
-              q.STT != null && String(q.STT).trim() !== ''
-                ? Number(q.STT)
-                : questionOrder,
+            STT: stt,
             question: q.question,
             answer: answers,
             correctAnswer: this._resolveCorrectAnswer(q.correctAnswer, answers),
             lessonId: lesson._id,
           }).save();
+
+          existingQuestionTexts.add(questionText);
+          if (explicitStt != null && !Number.isNaN(explicitStt)) {
+            existingQuestionStts.add(explicitStt);
+          }
+          lessonQuestionsAdded += 1;
           questionsAdded += 1;
+        }
+
+        if (isNewLesson && (lessonTopicsAdded > 0 || lessonQuestionsAdded > 0)) {
+          created += 1;
+        } else if (!isNewLesson && (lessonTopicsAdded > 0 || lessonQuestionsAdded > 0)) {
+          updated += 1;
+        } else {
+          skipped += 1;
         }
       }
 
-      if (created === 0 && updated === 0) {
+      if (created === 0 && topicsAdded === 0 && questionsAdded === 0) {
         res.send(
           `<center><h2 style="color: red">Không import được dữ liệu nào (${skipped} chương thiếu title hoặc không có bài học/câu hỏi mới trong file)</h2></center>`,
         );
