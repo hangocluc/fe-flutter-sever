@@ -4,7 +4,8 @@ const Schema = mongoose.Schema
 const ProgramDetail = new Schema({
     programId: { type: String, default: '' },
     title: { type: String, default: '' },
-    content: { type: String, default: '' }
+    content: { type: String, default: '' },
+    videoUrl: { type: String, default: '' }
 }, {
     versionKey: false
 })

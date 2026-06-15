@@ -5,6 +5,13 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Detail Program</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+    <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
+    <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
+    <link rel="stylesheet" href="assets/fonts/fontawesome5-overrides.min.css">
+    <link rel="stylesheet" href="assets/css/Table-With-Search.css">
+    <link rel="stylesheet" href="assets/css/Data-Table.css">
 </head>
 
 <body id="page-top">
@@ -26,7 +33,7 @@
                     <li class="nav-item" role="presentation"><a class="nav-link active"
                             href="programs.html"><span>Programs</span></a></li>
                     <li class="nav-item" role="presentation"><a class="nav-link"
-                                                                href="notifycation.html"><span>Notification</span></a></li>
+                            href="pending_request"><span>Feedback</span></a></li>
                     <li class="nav-item" role="presentation"><a class="nav-link"
                             href="login.html"><span>Logout</span></a></li>
                 </ul>
@@ -67,8 +74,10 @@
                                     <tr>
                                         <td id="trs-hd" class="col-lg-2" align="center"
                                             style="text-transform: uppercase; font-size: 18px;">Topic</td>
-                                        <td id="trs-hd" class="col-lg-6" align="center"
+                                        <td id="trs-hd" class="col-lg-5" align="center"
                                             style="text-transform: uppercase; font-size: 18px;">Content</td>
+                                        <td id="trs-hd" class="col-lg-2" align="center"
+                                            style="text-transform: uppercase; font-size: 18px;">Video URL</td>
                                         <td id="trs-hd" class="col-lg-2" align="center"
                                             style="text-transform: uppercase; font-size: 18px;">Action</td>
                                     </tr>
@@ -81,6 +90,13 @@
                                             <textarea class="form-control" name="content" placeholder="content"
                                                 rows="10" readonly
                                                 style="font-family: 'Cutive Mono', monospace;background-color: #f0f0f0;">{{this.content}}</textarea>
+                                        </td>
+                                        <td class="text-center">
+                                            {{#if this.videoUrl}}
+                                                <a href="{{this.videoUrl}}" target="_blank" style="word-break: break-all;">{{this.videoUrl}}</a>
+                                            {{else}}
+                                                <span style="color: #aaa;">—</span>
+                                            {{/if}}
                                         </td>
                                         <td><a class="btn btn-danger" role="button"
                                                 style="margin-left: 5px;background-color: rgb(98,155,241); padding-left: 27px; padding-right: 27px; margin-top: 5px; margin-bottom: 5px"

@@ -5,88 +5,84 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Programs</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+    <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
+    <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
+    <link rel="stylesheet" href="assets/fonts/fontawesome5-overrides.min.css">
+    <link rel="stylesheet" href="assets/css/Data-Table.css">
+    <link rel="stylesheet" href="assets/css/Table-With-Search.css">
+    <link rel="stylesheet" href="assets/css/Table-With-Search-1.css">
 </head>
 
-<body>
+<body id="page-top">
     <div id="wrapper">
         <nav class="navbar navbar-dark align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0">
             <div class="container-fluid d-flex flex-column p-0">
                 <a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="index.html">
                     <div class="sidebar-brand-icon rotate-n-15"><i class="fas fa-laugh-wink"></i></div>
-                    <div class="sidebar-brand-text mx-3" > <span>Flutter Server</span></div>
+                    <div class="sidebar-brand-text mx-3"><span>Flutter Server</span></div>
                 </a>
                 <hr class="sidebar-divider my-0">
                 <ul class="nav navbar-nav text-light" id="accordionSidebar">
-                    <li class="nav-item" role="presentation"><a class="nav-link"
-                            href="index.html"><span>Home&nbsp;</span></a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="user.html"><span>User</span></a>
-                    </li>
-                    <li class="nav-item" role="presentation"><a class="nav-link"
-                            href="lesson.html"><span>Lessons</span></a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link active"
-                            href="programs.html"><span>Programs</span></a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link"
-                                                                href="notifycation.html"><span>Notification</span></a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link"
-                            href="login.html"><span>Logout</span></a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="index.html"><span>Home&nbsp;</span></a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="user.html"><span>User</span></a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="lesson.html"><span>Lessons</span></a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link active" href="programs.html"><span>Programs</span></a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="pending_request"><span>Feedback</span></a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="login.html"><span>Logout</span></a></li>
                 </ul>
-                <div class="text-center d-none d-md-inline"><button class="btn rounded-circle border-0"
-                        id="sidebarToggle" type="button"></button></div>
+                <div class="text-center d-none d-md-inline"><button class="btn rounded-circle border-0" id="sidebarToggle" type="button"></button></div>
             </div>
         </nav>
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
                 <nav class="navbar navbar-light navbar-expand bg-white shadow mb-4 topbar static-top">
-                    <div class="container-fluid"><button class="btn btn-link d-md-none rounded-circle mr-3"
-                            id="sidebarToggleTop" type="button"><i class="fas fa-bars"></i></button>
+                    <div class="container-fluid"><button class="btn btn-link d-md-none rounded-circle mr-3" id="sidebarToggleTop" type="button"><i class="fas fa-bars"></i></button>
                         <ul class="nav navbar-nav flex-nowrap ml-auto">
                             <li class="nav-item dropdown no-arrow" role="presentation">
-                                <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link"
-                                        data-toggle="dropdown" aria-expanded="false" href="#"><span
-                                            class="d-none d-lg-inline mr-2 text-gray-600 small">Admin</span><img
-                                            class="border rounded-circle img-profile"
-                                            src="assets/img/avatars/user.png"></a>
+                                <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link" data-toggle="dropdown" aria-expanded="false" href="#"><span class="d-none d-lg-inline mr-2 text-gray-600 small">Admin</span><img class="border rounded-circle img-profile" src="assets/img/avatars/user.png"></a>
                                     <div class="dropdown-menu shadow dropdown-menu-right animated--grow-in" role="menu">
-
-                                        <div class="dropdown-divider"></div><a class="dropdown-item" role="presentation"
-                                            href="/"><i
-                                                class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Logout</a>
+                                        <div class="dropdown-divider"></div><a class="dropdown-item" role="presentation" href="/"><i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Logout</a>
                                     </div>
                                 </div>
                             </li>
                         </ul>
                     </div>
                 </nav>
-                <div class="container-fluid pt-0">
-                    <a class="btn btn-primary btn-icon-split mb-3" role="button" href="add_program">
-                        <span class="text-white text">ADD PROGRAM</span>
-                    </a>
-                    <div class="col-md-12 search-table-col">
-                    <div class="form-group pull-right col-lg-4"><input type="text" class="search form-control"
-                            placeholder="Search by typing here.."></div><span class="counter pull-right"></span>
+                <a class="btn btn-primary btn-icon-split" role="button"
+                    style="margin-left: 10px;padding-bottom: 13px;padding-top: 13px;" href="add_program">
+                    <span class="text-white text">ADD PROGRAM</span>
+                </a>
+                <div class="col-md-12 search-table-col" style="margin-top: 10px;">
+                    <div class="form-group pull-right col-lg-4"><input type="text" class="search form-control" placeholder="Search by typing here.."></div>
+                    <span class="counter pull-right"></span>
                     <div class="table-responsive table-bordered table table-hover table-bordered results">
                         <table class="table table-bordered table-hover">
                             <thead class="bill-header cs">
                                 <tr>
-                                    <td id="trs-hd" class="col-lg-4" align="center">
-                                        Image</td>
-                                    <td id="trs-hd" class="col-lg-4" align="center">Title</td>
-                                    <td id="trs-hd" class="col-lg-4" align="center">Action</td>
+                                    <td id="trs-hd" class="col-lg-5" align="center"
+                                        style="text-transform: uppercase; font-size: 18px;">Program</td>
+                                    <td id="trs-hd" class="col-lg-3" align="center"
+                                        style="text-transform: uppercase; font-size: 18px;">Number of Topics</td>
+                                    <td id="trs-hd" class="col-lg-2" align="center"
+                                        style="text-transform: uppercase; font-size: 18px;">Action</td>
                                 </tr>
                             </thead>
                             <tbody>
                                 {{#each program}}
                                 <tr>
-                                    <td class="text-center"><img src="{{this.image}}"
-                                            style="max-height: 100px; max-width: 170px;" /></td>
-                                    <td class="text-center">{{this.title}}</td>
+                                    <td align="center">{{this.title}}</td>
+                                    <td class="text-center">{{this.totalTopic}}</td>
                                     <td>
                                         <div style="justify-content: center;display: flex; flex-wrap: wrap;">
-                                            <a class="btn btn-primary m-1" role="button"
+                                            <a class="btn btn-danger" role="button"
+                                                style="margin-left: 5px;background-color: rgb(98,155,241); padding-left: 25px; padding-right: 25px; margin-top: 5px; margin-bottom: 5px"
                                                 href="program_detail?programId={{this._id}}">DETAIL</a>
                                             <form action="programs.html/detele-programs" method="post">
-                                                <button class="btn btn-danger m-1" type="submit" name="id"
-                                                    value="{{this._id}}">DELETE</button>
+                                                <button class="btn btn-danger"
+                                                    style="margin-left: 5px; padding-left: 25px; padding-right: 25px; margin-top: 5px; margin-bottom: 5px"
+                                                    type="submit" name="id" value="{{this._id}}">DELETE</button>
                                             </form>
                                         </div>
                                     </td>
@@ -95,7 +91,6 @@
                             </tbody>
                         </table>
                     </div>
-                </div>
                 </div>
             </div>
             <footer class="bg-white sticky-footer">

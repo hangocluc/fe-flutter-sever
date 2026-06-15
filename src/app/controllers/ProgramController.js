@@ -3,16 +3,18 @@ const ProgramDetail = require('../model/ProgramDetailModel')
 const path = require('path')
 const ProgramDetailModel = require('../model/ProgramDetailModel')
 class ProgramController {
-    index(req, res) {
-        Program.find({}).then(
-            program => {
-                var listProgram = []
-                for (var i of program) {
-                    var pr = new ProgramMD(i.image, i.name, i._id)
-                    listProgram.push(pr)
-                }
-                res.render('programs', { program: listProgram });
-            }).catch(e => res.json({ status: failed, message: 'Lỗi', error: e.message }))
+    async index(req, res) {
+        try {
+            const programs = await Program.find({})
+            const listProgram = []
+            for (const i of programs) {
+                const totalTopic = await ProgramDetail.countDocuments({ programId: i._id })
+                listProgram.push(new ProgramMD(i.name, i._id, totalTopic))
+            }
+            res.render('programs', { program: listProgram })
+        } catch (e) {
+            res.json({ status: false, message: 'Lỗi', error: e.message })
+        }
     }
 
     deleteProgram(req, res, next) {
@@ -39,13 +41,13 @@ class ProgramController {
 
 
 class ProgramMD {
-    image
     title
     _id
-    constructor(image, title, _id) {
-        this.image = image
+    totalTopic
+    constructor(title, _id, totalTopic) {
         this.title = title
         this._id = _id
+        this.totalTopic = totalTopic
     }
 }
 

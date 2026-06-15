@@ -8,7 +8,7 @@ class UpdateProController {
             return
         }
         ProgramDetail.findOne({_id: req.query.questionId}).then(program => {
-            var obj = { programId: program.programId, _id: program._id, title: program.title, content: program.content }
+            var obj = { programId: program.programId, _id: program._id, title: program.title, content: program.content, videoUrl: program.videoUrl ?? '' }
             res.render('update_program_detail', { program: obj })
         }).catch(e => res.send('Lỗi ' + e.message))
     }
@@ -23,6 +23,7 @@ class UpdateProController {
                 if (program != null) {
                     program.title = req.body.title
                     program.content = req.body.content
+                    program.videoUrl = req.body.videoUrl ?? ''
                     program.save().then(topic => {
                         res.redirect('/program_detail?programId=' + program.programId)
                     }).catch(e => res.send('Có lỗi' )+e.message)

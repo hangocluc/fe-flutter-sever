@@ -215,12 +215,11 @@ class ApiController {
 
     //get all in program
     async getAllInProgram(req, res, next) {
-        var program = await Program.find({})
-        var listData = [];
-        for (var pr of program) {
+        const programs = await Program.find({})
+        const listData = [];
+        for (const pr of programs) {
             const programDetail = await ProgramDetail.find({ programId: pr._id })
-            var program = new ProgramWithDetail(pr._id, pr.name, programDetail, pr.image)
-            listData.push(program)
+            listData.push(new ProgramWithDetail(pr._id, pr.name, programDetail, pr.image))
         }
         res.json(listData)
     }
