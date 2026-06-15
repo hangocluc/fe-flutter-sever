@@ -188,20 +188,20 @@ class LessonController {
       const multiLesson = lessonRows.length > 1;
 
       const existingLessons = await Lesson.find({}, { title: 1 });
-      const existingTitles = new Set(
-        existingLessons.map((l) => String(l.title).trim()),
+      const existingByTitle = new Map(
+        existingLessons.map((l) => [String(l.title).trim(), l]),
       );
 
       let created = 0;
+      let updated = 0;
       let skipped = 0;
+      let topicsAdded = 0;
+      let questionsAdded = 0;
 
       for (let lessonIndex = 0; lessonIndex < lessonRows.length; lessonIndex++) {
         const row = lessonRows[lessonIndex];
         const title = row.title != null ? String(row.title).trim() : '';
         if (!title) {
-          continue;
-        }
-        if (existingTitles.has(title)) {
           skipped += 1;
           continue;
         }
@@ -216,30 +216,6 @@ class LessonController {
           return false;
         });
 
-        const newLesson = await Lesson({
-          title,
-          totalTopic: topicsForLesson.length,
-        }).save();
-
-        const quizName =
-          row.quizName != null && String(row.quizName).trim() !== ''
-            ? String(row.quizName).trim()
-            : `Quiz ${title}`;
-
-        const newQuiz = await Quiz({
-          lessonId: newLesson._id,
-          name: quizName,
-        }).save();
-
-        for (const t of topicsForLesson) {
-          await Topic({
-            lessonId: newLesson._id,
-            title: t.title,
-            content: t.content,
-            videoLink: this._topicVideoLink(t),
-          }).save();
-        }
-
         const questionsForLesson = questionRows.filter((q) => {
           if (multiLesson && hasLessonKeyOnQuestions) {
             return this._rowBelongsToLesson(q, row, lessonIndex);
@@ -250,12 +226,66 @@ class LessonController {
           return false;
         });
 
-        let questionOrder = 0;
+        if (topicsForLesson.length === 0 && questionsForLesson.length === 0) {
+          skipped += 1;
+          continue;
+        }
+
+        let lesson = existingByTitle.get(title);
+        const isNewLesson = !lesson;
+
+        if (isNewLesson) {
+          lesson = await Lesson({
+            title,
+            totalTopic: topicsForLesson.length,
+          }).save();
+          existingByTitle.set(title, lesson);
+          created += 1;
+        } else {
+          updated += 1;
+        }
+
+        const quizName =
+          row.quizName != null && String(row.quizName).trim() !== ''
+            ? String(row.quizName).trim()
+            : `Quiz ${title}`;
+
+        let quiz = await Quiz.findOne({ lessonId: lesson._id });
+        if (!quiz) {
+          quiz = await Quiz({
+            lessonId: lesson._id,
+            name: quizName,
+          }).save();
+        }
+
+        for (const t of topicsForLesson) {
+          await Topic({
+            lessonId: lesson._id,
+            title: t.title,
+            content: t.content,
+            videoLink: this._topicVideoLink(t),
+          }).save();
+          topicsAdded += 1;
+        }
+
+        if (!isNewLesson && topicsForLesson.length > 0) {
+          const totalTopics = await Topic.countDocuments({ lessonId: lesson._id });
+          await Lesson.updateOne(
+            { _id: lesson._id },
+            { totalTopic: totalTopics },
+          );
+        }
+
+        const existingQuestionCount = await Question.countDocuments({
+          quizId: String(quiz._id),
+        });
+        let questionOrder = existingQuestionCount;
+
         for (const q of questionsForLesson) {
           questionOrder += 1;
           const answers = this._buildAnswers(q);
           await Question({
-            quizId: newQuiz._id,
+            quizId: quiz._id,
             STT:
               q.STT != null && String(q.STT).trim() !== ''
                 ? Number(q.STT)
@@ -263,23 +293,21 @@ class LessonController {
             question: q.question,
             answer: answers,
             correctAnswer: this._resolveCorrectAnswer(q.correctAnswer, answers),
-            lessonId: newLesson._id,
+            lessonId: lesson._id,
           }).save();
+          questionsAdded += 1;
         }
-
-        existingTitles.add(title);
-        created += 1;
       }
 
-      if (created === 0) {
+      if (created === 0 && updated === 0) {
         res.send(
-          `<center><h2 style="color: red">Không import được chương nào (${skipped} chương đã tồn tại hoặc thiếu title)</h2></center>`,
+          `<center><h2 style="color: red">Không import được dữ liệu nào (${skipped} chương thiếu title hoặc không có bài học/câu hỏi mới trong file)</h2></center>`,
         );
         return;
       }
 
       res.redirect(
-        `/lesson.html?imported=${created}&skipped=${skipped}`,
+        `/lesson.html?imported=${created}&updated=${updated}&topics=${topicsAdded}&questions=${questionsAdded}&skipped=${skipped}`,
       );
     } catch (e) {
       res.json({
