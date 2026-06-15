@@ -401,25 +401,36 @@ class LessonController {
             res.json({ message: 'Cần truyền params id', status: false })
             return
         }
-        Lesson.deleteOne({ _id: req.body.id }, function (err) {
+        const lessonId = req.body.id
+        Lesson.deleteOne({ _id: lessonId }, function (err) {
             if (err) {
                 res.json({ message: 'Delete failed', status: false })
                 return
             }
-            Topic.deleteMany({ lessonId: req.body.id }, function (err) {
+            Topic.deleteMany({ lessonId }, function (err) {
                 if (err) {
                     res.json({ message: 'Delete failed', status: false })
                     return
                 }
             })
-            Quiz.findOne({ lessonId: req.body.id }).then(quiz => {
-                Quiz.deleteOne({ lessonId: req.body.id }, function (err) {
+            Quiz.findOne({ lessonId }).then((quiz) => {
+                const questionFilter = quiz
+                    ? {
+                        $or: [
+                            { lessonId },
+                            { quizId: quiz._id },
+                            { quizId: String(quiz._id) },
+                        ],
+                    }
+                    : { lessonId }
+
+                Question.deleteMany(questionFilter, function (err) {
                     if (err) {
                         res.json({ message: 'Delete failed', status: false })
                         return
                     }
                 })
-                Question.deleteMany({ quizId: quiz._id }, function (err) {
+                Quiz.deleteOne({ lessonId }, function (err) {
                     if (err) {
                         res.json({ message: 'Delete failed', status: false })
                         return
