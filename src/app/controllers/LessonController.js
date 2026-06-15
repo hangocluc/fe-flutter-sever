@@ -186,18 +186,47 @@ class LessonController {
         ? xlsx.utils.sheet_to_json(workbook.Sheets[sheetNames[2]])
         : [];
 
-      const hasLessonKeyOnTopics = topicRows.some(
-        (r) => this._topicLessonKey(r) != null,
-      );
-      const hasLessonKeyOnQuestions = questionRows.some(
-        (r) => this._topicLessonKey(r) != null,
-      );
+      const hasLessonKeyOnTopics = topicRows.some((r) => this._topicLessonKey(r) != null);
+      const hasLessonKeyOnQuestions = questionRows.some((r) => this._topicLessonKey(r) != null);
       const multiLesson = lessonRows.length > 1;
 
-      const existingLessons = await Lesson.find({}, { title: 1 });
-      const existingByTitle = new Map(
-        existingLessons.map((l) => [String(l.title).trim(), l]),
-      );
+      // Pre-load tất cả lessons, topics, quizzes, questions một lần duy nhất
+      const [existingLessons, existingTopics, existingQuizzes, existingQuestions] =
+        await Promise.all([
+          Lesson.find({}, { title: 1 }),
+          Topic.find({}, { lessonId: 1, title: 1 }),
+          Quiz.find({}, { lessonId: 1, name: 1 }),
+          Question.find({}, { quizId: 1, question: 1, STT: 1, lessonId: 1 }),
+        ]);
+
+      const existingByTitle = new Map(existingLessons.map((l) => [String(l.title).trim(), l]));
+
+      // Index topics/quiz/questions theo lessonId để tra cứu O(1)
+      const topicsByLesson = new Map();
+      for (const t of existingTopics) {
+        const key = String(t.lessonId);
+        if (!topicsByLesson.has(key)) topicsByLesson.set(key, new Set());
+        topicsByLesson.get(key).add(this._normalizeImportText(t.title));
+      }
+
+      const quizByLesson = new Map(existingQuizzes.map((q) => [String(q.lessonId), q]));
+
+      const questionsByQuiz = new Map();
+      const questionSttsByQuiz = new Map();
+      const questionCountByQuiz = new Map();
+      for (const q of existingQuestions) {
+        const key = String(q.quizId);
+        if (!questionsByQuiz.has(key)) {
+          questionsByQuiz.set(key, new Set());
+          questionSttsByQuiz.set(key, new Set());
+          questionCountByQuiz.set(key, 0);
+        }
+        questionsByQuiz.get(key).add(this._normalizeImportText(q.question));
+        if (q.STT != null && !Number.isNaN(Number(q.STT))) {
+          questionSttsByQuiz.get(key).add(Number(q.STT));
+        }
+        questionCountByQuiz.set(key, questionCountByQuiz.get(key) + 1);
+      }
 
       let created = 0;
       let updated = 0;
@@ -208,28 +237,17 @@ class LessonController {
       for (let lessonIndex = 0; lessonIndex < lessonRows.length; lessonIndex++) {
         const row = lessonRows[lessonIndex];
         const title = row.title != null ? String(row.title).trim() : '';
-        if (!title) {
-          skipped += 1;
-          continue;
-        }
+        if (!title) { skipped += 1; continue; }
 
         const topicsForLesson = topicRows.filter((t) => {
-          if (multiLesson && hasLessonKeyOnTopics) {
-            return this._rowBelongsToLesson(t, row, lessonIndex);
-          }
-          if (!multiLesson) {
-            return true;
-          }
+          if (multiLesson && hasLessonKeyOnTopics) return this._rowBelongsToLesson(t, row, lessonIndex);
+          if (!multiLesson) return true;
           return false;
         });
 
         const questionsForLesson = questionRows.filter((q) => {
-          if (multiLesson && hasLessonKeyOnQuestions) {
-            return this._rowBelongsToLesson(q, row, lessonIndex);
-          }
-          if (!multiLesson) {
-            return true;
-          }
+          if (multiLesson && hasLessonKeyOnQuestions) return this._rowBelongsToLesson(q, row, lessonIndex);
+          if (!multiLesson) return true;
           return false;
         });
 
@@ -240,138 +258,101 @@ class LessonController {
 
         let lesson = existingByTitle.get(title);
         const isNewLesson = !lesson;
-        let quiz = null;
 
         const quizName =
           row.quizName != null && String(row.quizName).trim() !== ''
             ? String(row.quizName).trim()
             : `Quiz ${title}`;
 
-        const existingTopicTitles = new Set();
-        const existingQuestionTexts = new Set();
-        const existingQuestionStts = new Set();
-        let questionOrder = 0;
+        // Chuẩn bị danh sách topics/questions cần insert (lọc trùng)
+        const topicsToInsert = [];
+        const existingTopicTitlesForLesson = lesson
+          ? (topicsByLesson.get(String(lesson._id)) ?? new Set())
+          : new Set();
+        const localTopicTitles = new Set(existingTopicTitlesForLesson);
 
-        if (lesson) {
-          const existingTopics = await Topic.find(
-            { lessonId: lesson._id },
-            { title: 1 },
-          );
-          for (const t of existingTopics) {
-            existingTopicTitles.add(this._normalizeImportText(t.title));
-          }
-
-          quiz = await Quiz.findOne({ lessonId: lesson._id });
-          if (quiz) {
-            const existingQuestions = await Question.find(
-              { quizId: String(quiz._id) },
-              { question: 1, STT: 1 },
-            );
-            for (const q of existingQuestions) {
-              existingQuestionTexts.add(this._normalizeImportText(q.question));
-              if (q.STT != null && !Number.isNaN(Number(q.STT))) {
-                existingQuestionStts.add(Number(q.STT));
-              }
-            }
-            questionOrder = existingQuestions.length;
-          }
-        }
-
-        const ensureLessonAndQuiz = async () => {
-          if (!lesson) {
-            lesson = await Lesson({
-              title,
-              totalTopic: 0,
-            }).save();
-            existingByTitle.set(title, lesson);
-          }
-          if (!quiz) {
-            quiz = await Quiz.findOne({ lessonId: lesson._id });
-            if (!quiz) {
-              quiz = await Quiz({
-                lessonId: lesson._id,
-                name: quizName,
-              }).save();
-            }
-          }
-        };
-
-        let lessonTopicsAdded = 0;
         for (const t of topicsForLesson) {
           const topicTitle = this._normalizeImportText(t.title);
-          if (!topicTitle || existingTopicTitles.has(topicTitle)) {
-            continue;
-          }
-          await ensureLessonAndQuiz();
-          await Topic({
+          if (!topicTitle || localTopicTitles.has(topicTitle)) continue;
+          topicsToInsert.push(t);
+          localTopicTitles.add(topicTitle);
+        }
+
+        const quizKey = lesson ? String(quizByLesson.get(String(lesson._id))?._id ?? '') : '';
+        const existingQTexts = quizKey ? (questionsByQuiz.get(quizKey) ?? new Set()) : new Set();
+        const existingQStts = quizKey ? (questionSttsByQuiz.get(quizKey) ?? new Set()) : new Set();
+        let questionOrder = quizKey ? (questionCountByQuiz.get(quizKey) ?? 0) : 0;
+
+        const questionsToInsert = [];
+        const localQTexts = new Set(existingQTexts);
+        const localQStts = new Set(existingQStts);
+
+        for (const q of questionsForLesson) {
+          const questionText = this._normalizeImportText(q.question);
+          if (!questionText || localQTexts.has(questionText)) continue;
+          const explicitStt = q.STT != null && String(q.STT).trim() !== '' ? Number(q.STT) : null;
+          if (explicitStt != null && !Number.isNaN(explicitStt) && localQStts.has(explicitStt)) continue;
+          questionsToInsert.push({ row: q, explicitStt });
+          localQTexts.add(questionText);
+          if (explicitStt != null && !Number.isNaN(explicitStt)) localQStts.add(explicitStt);
+        }
+
+        if (topicsToInsert.length === 0 && questionsToInsert.length === 0) {
+          skipped += 1;
+          continue;
+        }
+
+        // Tạo lesson + quiz nếu chưa có (chỉ 1 lần per lesson)
+        if (!lesson) {
+          lesson = await Lesson({ title, totalTopic: 0 }).save();
+          existingByTitle.set(title, lesson);
+        }
+
+        let quiz = quizByLesson.get(String(lesson._id));
+        if (!quiz) {
+          quiz = await Quiz({ lessonId: lesson._id, name: quizName }).save();
+          quizByLesson.set(String(lesson._id), quiz);
+        }
+
+        // Batch insert topics
+        if (topicsToInsert.length > 0) {
+          const topicDocs = topicsToInsert.map((t) => ({
             lessonId: lesson._id,
             title: t.title,
             content: t.content,
             videoLink: this._topicVideoLink(t),
-          }).save();
-          existingTopicTitles.add(topicTitle);
-          lessonTopicsAdded += 1;
-          topicsAdded += 1;
+          }));
+          await Topic.insertMany(topicDocs, { ordered: false });
+          topicsAdded += topicsToInsert.length;
+
+          // Cập nhật totalTopic mà không cần countDocuments
+          const prevTotal = lesson.totalTopic ?? 0;
+          await Lesson.updateOne({ _id: lesson._id }, { totalTopic: prevTotal + topicsToInsert.length });
         }
 
-        if (lesson && lessonTopicsAdded > 0) {
-          const totalTopics = await Topic.countDocuments({ lessonId: lesson._id });
-          await Lesson.updateOne(
-            { _id: lesson._id },
-            { totalTopic: totalTopics },
-          );
+        // Batch insert questions
+        if (questionsToInsert.length > 0) {
+          const questionDocs = questionsToInsert.map(({ row: q, explicitStt }) => {
+            questionOrder += 1;
+            const answers = this._buildAnswers(q);
+            const stt = explicitStt != null && !Number.isNaN(explicitStt) ? explicitStt : questionOrder;
+            return {
+              quizId: quiz._id,
+              STT: stt,
+              question: q.question,
+              answer: answers,
+              correctAnswer: this._resolveCorrectAnswer(q.correctAnswer, answers),
+              lessonId: lesson._id,
+            };
+          });
+          await Question.insertMany(questionDocs, { ordered: false });
+          questionsAdded += questionsToInsert.length;
         }
 
-        let lessonQuestionsAdded = 0;
-        for (const q of questionsForLesson) {
-          const questionText = this._normalizeImportText(q.question);
-          if (!questionText || existingQuestionTexts.has(questionText)) {
-            continue;
-          }
-
-          const explicitStt =
-            q.STT != null && String(q.STT).trim() !== ''
-              ? Number(q.STT)
-              : null;
-          if (
-            explicitStt != null &&
-            !Number.isNaN(explicitStt) &&
-            existingQuestionStts.has(explicitStt)
-          ) {
-            continue;
-          }
-
-          await ensureLessonAndQuiz();
-          questionOrder += 1;
-          const answers = this._buildAnswers(q);
-          const stt =
-            explicitStt != null && !Number.isNaN(explicitStt)
-              ? explicitStt
-              : questionOrder;
-
-          await Question({
-            quizId: quiz._id,
-            STT: stt,
-            question: q.question,
-            answer: answers,
-            correctAnswer: this._resolveCorrectAnswer(q.correctAnswer, answers),
-            lessonId: lesson._id,
-          }).save();
-
-          existingQuestionTexts.add(questionText);
-          if (explicitStt != null && !Number.isNaN(explicitStt)) {
-            existingQuestionStts.add(explicitStt);
-          }
-          lessonQuestionsAdded += 1;
-          questionsAdded += 1;
-        }
-
-        if (isNewLesson && (lessonTopicsAdded > 0 || lessonQuestionsAdded > 0)) {
+        if (isNewLesson) {
           created += 1;
-        } else if (!isNewLesson && (lessonTopicsAdded > 0 || lessonQuestionsAdded > 0)) {
-          updated += 1;
         } else {
-          skipped += 1;
+          updated += 1;
         }
       }
 
