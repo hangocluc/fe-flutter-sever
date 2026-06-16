@@ -127,7 +127,6 @@ io.sockets.on('connection', function (socket) {
 async function bootstrap() {
     initFirebaseAdmin()
     await db.connect();
-    await verifyMailConfig()
     startStudyReminderJobs()
 
     const listenPort = process.env.PORT || port
@@ -135,6 +134,9 @@ async function bootstrap() {
     server.listen(listenPort, host, () => {
         console.log(`Server running at http://${host}:${listenPort}`)
         console.log(`LAN: http://<your-ip>:${listenPort}/api/insert-user`)
+        verifyMailConfig().catch((err) => {
+            console.error('[SMTP] verify error:', err.message || err)
+        })
     });
 }
 

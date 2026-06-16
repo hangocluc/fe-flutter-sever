@@ -1,19 +1,8 @@
-const nodemailer = require('nodemailer')
 const constance = require('../constance/index')
 const QA = require('../model/QAModel')
 const { sendToDevice } = require('../services/fcmService')
 const { resolveUserContact } = require('../helpers/userContact')
-const { getMailConfig } = require('../../config/mail')
-
-function createTransport() {
-    const mail = getMailConfig()
-    return nodemailer.createTransport({
-        host: mail.host,
-        port: mail.port,
-        secure: mail.secure,
-        auth: mail.auth,
-    })
-}
+const { getEmailConfig, sendEmail } = require('../../config/mail')
 
 class FeedBackController {
     index(req, res) {
@@ -21,7 +10,7 @@ class FeedBackController {
     }
 
     async adminsendMail(req, res) {
-        const mail = getMailConfig()
+        const emailConfig = getEmailConfig()
         const pushTitle = `${constance.title}${req.body.username || ''}`
         let pushSent = false
 
@@ -38,7 +27,7 @@ class FeedBackController {
             }
         }
 
-        if (!mail.enabled) {
+        if (!emailConfig.enabled) {
             if (req.body.idQA) {
                 await QA.findByIdAndUpdate(req.body.idQA, { status: true }).catch(() => {})
             }
@@ -51,38 +40,17 @@ class FeedBackController {
             return
         }
 
-        const transporter = createTransport()
-        const fromAddress = mail.from
-
-        const options = {
-            from: fromAddress,
-            to: req.body.email,
-            subject: req.body.subject,
-            html: `
+        const html = `
 <h4 style="color:#2d4373;font-family:Candara,sans-serif">${req.body.message}</h4>
 <p>— Flutter Server Admin</p>
-`,
-        }
+`
 
-        transporter.sendMail(options, async (error) => {
-            if (error) {
-                console.error('sendMail failed:', error.message || error)
-
-                if (req.body.idQA) {
-                    await QA.findByIdAndUpdate(req.body.idQA, { status: true }).catch(() => {})
-                }
-
-                const qs = new URLSearchParams({
-                    resolved: '1',
-                    email: '0',
-                    push: pushSent ? '1' : '0',
-                })
-                if (!pushSent) {
-                    qs.set('emailError', '1')
-                }
-                res.redirect(`/detail_pending?id=${req.body.idQA}&${qs}`)
-                return
-            }
+        try {
+            await sendEmail({
+                to: req.body.email,
+                subject: req.body.subject,
+                html,
+            })
 
             if (req.body.idQA) {
                 await QA.findByIdAndUpdate(req.body.idQA, { status: true }).catch(() => {})
@@ -94,43 +62,54 @@ class FeedBackController {
                 push: pushSent ? '1' : '0',
             })
             res.redirect(`/detail_pending?id=${req.body.idQA}&${qs}`)
-        })
+        } catch (error) {
+            console.error('sendMail failed:', error.message || error)
+
+            if (req.body.idQA) {
+                await QA.findByIdAndUpdate(req.body.idQA, { status: true }).catch(() => {})
+            }
+
+            const qs = new URLSearchParams({
+                resolved: '1',
+                email: '0',
+                push: pushSent ? '1' : '0',
+            })
+            if (!pushSent) {
+                qs.set('emailError', '1')
+            }
+            res.redirect(`/detail_pending?id=${req.body.idQA}&${qs}`)
+        }
     }
 
     async sendMailFeedBack(req, res) {
-        const mail = getMailConfig()
-        if (!mail.enabled) {
+        const emailConfig = getEmailConfig()
+        if (!emailConfig.enabled) {
             res.status(503).json({
                 code: 503,
-                message: 'SMTP not configured. Set SMTP_USER and SMTP_PASS in .env',
+                message: 'Email not configured. Set RESEND_API_KEY or SMTP_USER + SMTP_PASS',
                 isSuccess: false,
             })
             return
         }
 
-        const transport = createTransport()
-        const options = {
-            from: mail.from,
-            to: req.query.email,
-            subject: req.query.subject,
-            html: constance.auto + constance.autoMess,
-        }
-
-        transport.sendMail(options, (error) => {
-            if (error) {
-                res.json({
-                    code: 404,
-                    message: error.message,
-                    isSuccess: false,
-                })
-                return
-            }
+        try {
+            await sendEmail({
+                to: req.query.email,
+                subject: req.query.subject,
+                html: constance.auto + constance.autoMess,
+            })
             res.json({
                 code: 200,
                 isSuccess: true,
                 message: 'Success',
             })
-        })
+        } catch (error) {
+            res.json({
+                code: 404,
+                message: error.message,
+                isSuccess: false,
+            })
+        }
     }
 
     async nextFeedBack(req, res) {
@@ -149,14 +128,14 @@ class FeedBackController {
                 return
             }
 
-            const mail = getMailConfig()
+            const emailConfig = getEmailConfig()
 
             res.render('feedback', {
                 email: contact.gmail,
                 idQA: req.query.id || '',
                 tokenDevice: contact.tokenDevice,
                 name: contact.username,
-                smtpConfigured: mail.enabled,
+                smtpConfigured: emailConfig.enabled,
             })
         } catch (e) {
             console.error('nextFeedBack failed:', e)

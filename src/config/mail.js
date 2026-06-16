@@ -14,37 +14,120 @@ function getMailConfig() {
     }
 }
 
-async function verifyMailConfig() {
-    const mail = getMailConfig()
-    if (mail.isPlaceholder) {
-        console.warn('[SMTP] SMTP_USER is still the .env.example placeholder — email disabled until you set a real Gmail')
-        return false
-    }
-    if (!mail.enabled) {
-        console.warn('[SMTP] Not configured — email disabled. Set SMTP_USER + SMTP_PASS in .env')
-        return false
-    }
+function getEmailConfig() {
+    const resendKey = (process.env.RESEND_API_KEY || '').trim()
+    const smtp = getMailConfig()
+    const from = (
+        process.env.EMAIL_FROM ||
+        process.env.RESEND_FROM ||
+        smtp.from ||
+        ''
+    ).trim()
 
+    if (resendKey) {
+        return { provider: 'resend', enabled: Boolean(from), from, resendKey, smtp }
+    }
+    if (smtp.enabled) {
+        return { provider: 'smtp', enabled: true, from: smtp.from, resendKey: '', smtp }
+    }
+    return { provider: null, enabled: false, from, resendKey: '', smtp }
+}
+
+function createSmtpTransport(mail = getMailConfig()) {
     const nodemailer = require('nodemailer')
-    const transporter = nodemailer.createTransport({
+    return nodemailer.createTransport({
         host: mail.host,
         port: mail.port,
         secure: mail.secure,
         auth: mail.auth,
+        connectionTimeout: 10000,
+        greetingTimeout: 10000,
+        socketTimeout: 15000,
+    })
+}
+
+async function sendViaResend({ to, subject, html, from }, resendKey) {
+    const response = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${resendKey}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            from,
+            to: [to],
+            subject,
+            html,
+        }),
     })
 
+    if (!response.ok) {
+        const body = await response.text()
+        throw new Error(`Resend ${response.status}: ${body}`)
+    }
+}
+
+async function sendEmail({ to, subject, html, from }) {
+    const config = getEmailConfig()
+    if (!config.enabled) {
+        throw new Error('Email not configured')
+    }
+
+    const fromAddress = from || config.from
+    if (!fromAddress) {
+        throw new Error('EMAIL_FROM is required when using Resend')
+    }
+
+    if (config.provider === 'resend') {
+        await sendViaResend({ to, subject, html, from: fromAddress }, config.resendKey)
+        return
+    }
+
+    const transporter = createSmtpTransport(config.smtp)
+    await transporter.sendMail({ from: fromAddress, to, subject, html })
+}
+
+async function verifyMailConfig() {
+    const config = getEmailConfig()
+
+    if (config.provider === 'resend') {
+        if (!config.from) {
+            console.warn('[Email] RESEND_API_KEY set but EMAIL_FROM missing')
+            return false
+        }
+        console.log(`[Email] Resend API ready (from: ${config.from})`)
+        return true
+    }
+
+    const mail = config.smtp
+    if (mail.isPlaceholder) {
+        console.warn('[Email] SMTP_USER is placeholder — set RESEND_API_KEY (Render) or SMTP_USER+SMTP_PASS (local)')
+        return false
+    }
+    if (!mail.enabled) {
+        console.warn('[Email] Not configured — set RESEND_API_KEY or SMTP_USER + SMTP_PASS')
+        return false
+    }
+
+    const transporter = createSmtpTransport(mail)
     try {
         await transporter.verify()
-        console.log(`[SMTP] Ready (${mail.from})`)
+        console.log(`[Email] Gmail SMTP ready (${mail.from})`)
         return true
     } catch (err) {
         console.error(
-            `[SMTP] Login failed for ${mail.auth.user} — email will not send. ` +
-            'Use a Gmail App Password (not your normal password): https://myaccount.google.com/apppasswords'
+            `[Email] Gmail SMTP failed for ${mail.auth.user}. ` +
+            'On Render use RESEND_API_KEY instead (SMTP port 587 is blocked).'
         )
-        console.error(`[SMTP] ${err.code || ''} ${err.message || err}`)
+        console.error(`[Email] ${err.code || ''} ${err.message || err}`)
         return false
     }
 }
 
-module.exports = { getMailConfig, verifyMailConfig }
+module.exports = {
+    getMailConfig,
+    getEmailConfig,
+    verifyMailConfig,
+    createSmtpTransport,
+    sendEmail,
+}
