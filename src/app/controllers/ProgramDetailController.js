@@ -1,6 +1,7 @@
 
 const ProgramDetailModel = require('../model/ProgramDetailModel');
 const Question = require('../model/QuestionModel');
+const { sortByTitleNumber } = require('../helpers/sortByTitleNumber');
 
 class ProgramDetailController {
 
@@ -12,7 +13,7 @@ class ProgramDetailController {
         }
         ProgramDetailModel.find({ programId: req.query.programId }).then(program => {
             var listProgramDetail = []
-            for (var i of program) {
+            for (var i of sortByTitleNumber(program, (p) => p.title)) {
                 var pr = new ProgramDetailMD(i.content, i.title, i._id, req.query.programId)
                 listProgramDetail.push(pr)
             }

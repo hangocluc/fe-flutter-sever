@@ -5,19 +5,19 @@ const { sendToDevice } = require('../services/fcmService')
 const { resolveUserContact } = require('../helpers/userContact')
 const { getMailConfig } = require('../../config/mail')
 
+function createTransport() {
+    const mail = getMailConfig()
+    return nodemailer.createTransport({
+        host: mail.host,
+        port: mail.port,
+        secure: mail.secure,
+        auth: mail.auth,
+    })
+}
+
 class FeedBackController {
     index(req, res) {
         res.render('login')
-    }
-
-    createTransport() {
-        const mail = getMailConfig()
-        return nodemailer.createTransport({
-            host: mail.host,
-            port: mail.port,
-            secure: mail.secure,
-            auth: mail.auth,
-        })
     }
 
     async adminsendMail(req, res) {
@@ -51,7 +51,7 @@ class FeedBackController {
             return
         }
 
-        const transporter = this.createTransport()
+        const transporter = createTransport()
         const fromAddress = mail.from
 
         const options = {
@@ -66,11 +66,21 @@ class FeedBackController {
 
         transporter.sendMail(options, async (error) => {
             if (error) {
-                console.error('sendMail failed:', error)
-                res.status(500).send(
-                    `Email failed: ${error.message}. ` +
-                    'Use a Gmail App Password in .env (SMTP_USER + SMTP_PASS). See README.'
-                )
+                console.error('sendMail failed:', error.message || error)
+
+                if (req.body.idQA) {
+                    await QA.findByIdAndUpdate(req.body.idQA, { status: true }).catch(() => {})
+                }
+
+                const qs = new URLSearchParams({
+                    resolved: '1',
+                    email: '0',
+                    push: pushSent ? '1' : '0',
+                })
+                if (!pushSent) {
+                    qs.set('emailError', '1')
+                }
+                res.redirect(`/detail_pending?id=${req.body.idQA}&${qs}`)
                 return
             }
 
@@ -98,7 +108,7 @@ class FeedBackController {
             return
         }
 
-        const transport = this.createTransport()
+        const transport = createTransport()
         const options = {
             from: mail.from,
             to: req.query.email,

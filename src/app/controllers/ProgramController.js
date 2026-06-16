@@ -2,10 +2,11 @@ const Program = require('../model/ProgramModel')
 const ProgramDetail = require('../model/ProgramDetailModel')
 const path = require('path')
 const ProgramDetailModel = require('../model/ProgramDetailModel')
+const { sortByTitleNumber } = require('../helpers/sortByTitleNumber')
 class ProgramController {
     async index(req, res) {
         try {
-            const programs = await Program.find({})
+            const programs = sortByTitleNumber(await Program.find({}), (p) => p.name)
             const listProgram = []
             for (const i of programs) {
                 const totalTopic = await ProgramDetail.countDocuments({ programId: i._id })

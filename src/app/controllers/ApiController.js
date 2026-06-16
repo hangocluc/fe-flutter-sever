@@ -6,6 +6,7 @@ const Program = require('../model/ProgramModel')
 const ProgramDetail = require('../model/ProgramDetailModel')
 const User = require('../model/UserModel')
 const Process = require('../model/ProcessModel')
+const { sortByTitleNumber } = require('../helpers/sortByTitleNumber')
 
 class ApiController {
 
@@ -15,7 +16,7 @@ class ApiController {
             isSuccess: true,
             code: 200,
             message: "success",
-            data: lesson,
+            data: sortByTitleNumber(lesson, (l) => l.title),
         })).catch(e => res.json({
             status: false,
             message: e.message,
@@ -154,7 +155,7 @@ class ApiController {
     async getAllLessonData(req, res, next) {
 
         try {
-            var lessons = await Lesson.find({})
+            var lessons = sortByTitleNumber(await Lesson.find({}), (l) => l.title)
             var listData = []
             for (var ls of lessons) {
                 const topic = await Topic.find({ lessonId: ls._id })
@@ -181,7 +182,7 @@ class ApiController {
     getProgram(req, res, next) {
         var listData = []
         Program.find({}).then(program => {
-            for (var pr of program) {
+            for (var pr of sortByTitleNumber(program, (p) => p.name)) {
                 // var data = Buffer.from(pr.image.data, "binary").toString("base64");
                 var programMd = new ProgramMD(pr._id, pr.name, pr.image)
                 listData.push(programMd)
@@ -205,7 +206,7 @@ class ApiController {
             return;
         }
         ProgramDetail.find({ programId: req.query.programId }).then(programDetail => {
-            res.json(programDetail)
+            res.json(sortByTitleNumber(programDetail, (p) => p.title))
         }).catch(e => res.json({
             isSuccess: false,
             message: e.message,
@@ -215,10 +216,13 @@ class ApiController {
 
     //get all in program
     async getAllInProgram(req, res, next) {
-        const programs = await Program.find({})
+        const programs = sortByTitleNumber(await Program.find({}), (p) => p.name)
         const listData = [];
         for (const pr of programs) {
-            const programDetail = await ProgramDetail.find({ programId: pr._id })
+            const programDetail = sortByTitleNumber(
+                await ProgramDetail.find({ programId: pr._id }),
+                (p) => p.title
+            )
             listData.push(new ProgramWithDetail(pr._id, pr.name, programDetail, pr.image))
         }
         res.json(listData)

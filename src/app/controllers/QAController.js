@@ -315,6 +315,7 @@ class QAController {
                 QA: list,
                 resolved: req.query.resolved === '1',
                 email: req.query.email === '1',
+                emailError: req.query.emailError === '1',
                 push: req.query.push === '1',
             })
         } catch (e) {

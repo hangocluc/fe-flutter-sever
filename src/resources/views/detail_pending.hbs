@@ -32,7 +32,13 @@
                     <a href="pending_request" class="btn btn-sm btn-light mb-3">&larr; Back to list</a>
 
                     {{#if resolved}}
+                    {{#if emailError}}
+                    <div class="alert alert-warning">
+                        Marked as resolved. <strong>Email failed</strong> — no push notification was sent either.
+                    </div>
+                    {{else}}
                     <div class="alert alert-success">Marked as resolved.{{#if email}} Email sent.{{/if}}{{#if push}} Push sent.{{/if}}</div>
+                    {{/if}}
                     {{/if}}
 
                     {{#each QA}}

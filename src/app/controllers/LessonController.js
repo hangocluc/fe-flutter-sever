@@ -7,6 +7,7 @@ const Question = require('../model/QuestionModel')
 const Process = require('../model/ProcessModel')
 const User = require('../model/UserModel');
 const UserModel = require('../model/UserModel');
+const { sortByTitleNumber } = require('../helpers/sortByTitleNumber');
 
 class LessonController {
     async index(req, res) {
@@ -28,7 +29,7 @@ class LessonController {
                 }
             }
         ]);
-        res.render('lesson', { lesson: a });
+        res.render('lesson', { lesson: sortByTitleNumber(a, (l) => l.title) });
     }
 
     async userLearned(req, res) {

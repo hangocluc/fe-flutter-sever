@@ -1,3 +1,4 @@
+require('./polyfill-fetch')
 require('dotenv').config()
 const express = require('express')
 const cors = require('cors')
@@ -10,6 +11,7 @@ const { startStudyReminderJobs } = require('./app/jobs/studyReminderJob')
 
 const db = require('./config/db')
 const { initFirebaseAdmin } = require('./config/firebase')
+const { verifyMailConfig } = require('./config/mail')
 const route = require('./app/routes')
 const port = 3001;
 //import thư  viện socket
@@ -125,6 +127,7 @@ io.sockets.on('connection', function (socket) {
 async function bootstrap() {
     initFirebaseAdmin()
     await db.connect();
+    await verifyMailConfig()
     startStudyReminderJobs()
 
     const listenPort = process.env.PORT || port
