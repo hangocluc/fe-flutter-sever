@@ -51,6 +51,7 @@ class FeedBackController {
                 subject: req.body.subject,
                 html,
             })
+            console.log(`[Email] Sent to ${req.body.email} — subject: ${req.body.subject}`)
 
             if (req.body.idQA) {
                 await QA.findByIdAndUpdate(req.body.idQA, { status: true }).catch(() => {})
@@ -136,6 +137,7 @@ class FeedBackController {
                 tokenDevice: contact.tokenDevice,
                 name: contact.username,
                 smtpConfigured: emailConfig.enabled,
+                emailConfigured: emailConfig.enabled,
             })
         } catch (e) {
             console.error('nextFeedBack failed:', e)

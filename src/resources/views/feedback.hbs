@@ -30,10 +30,11 @@
                             <h6 class="m-0 font-weight-bold text-primary">Reply to user</h6>
                         </div>
                         <div class="card-body">
-                            {{#unless smtpConfigured}}
+                            {{#unless emailConfigured}}
                             <div class="alert alert-warning small">
-                                SMTP not configured. Add <code>SMTP_USER</code> and <code>SMTP_PASS</code> (Gmail App Password) to <code>.env</code>.
-                                Push notification will still work if the user has an FCM token.
+                                Email chưa cấu hình. Thêm <code>RESEND_API_KEY</code> + <code>EMAIL_FROM</code> (Render)
+                                hoặc <code>SMTP_USER</code> + <code>SMTP_PASS</code> (local) vào <code>.env</code>.
+                                Push notification vẫn hoạt động nếu user có FCM token.
                             </div>
                             {{/unless}}
                             <p class="text-muted small">
