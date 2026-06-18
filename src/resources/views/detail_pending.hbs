@@ -34,7 +34,13 @@
                     {{#if resolved}}
                     {{#if emailError}}
                     <div class="alert alert-warning">
-                        Marked as resolved. <strong>Email failed</strong> — no push notification was sent either.
+                        Marked as resolved.{{#if push}} Push sent.{{/if}}
+                        <strong>Email failed.</strong>
+                        {{#if emailErrorMsg}}
+                        <br><small>{{emailErrorMsg}}</small>
+                        {{else}}
+                        Với <code>onboarding@resend.dev</code> chỉ gửi được tới email đăng ký Resend. Verify domain để gửi user khác.
+                        {{/if}}
                     </div>
                     {{else}}
                     <div class="alert alert-success">Marked as resolved.{{#if email}} Email sent.{{/if}}{{#if push}} Push sent.{{/if}}</div>

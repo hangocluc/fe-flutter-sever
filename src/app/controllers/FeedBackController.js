@@ -73,10 +73,12 @@ class FeedBackController {
             const qs = new URLSearchParams({
                 resolved: '1',
                 email: '0',
+                emailError: '1',
                 push: pushSent ? '1' : '0',
             })
-            if (!pushSent) {
-                qs.set('emailError', '1')
+            const errMsg = String(error.message || error).slice(0, 200)
+            if (errMsg) {
+                qs.set('emailErrorMsg', errMsg)
             }
             res.redirect(`/detail_pending?id=${req.body.idQA}&${qs}`)
         }

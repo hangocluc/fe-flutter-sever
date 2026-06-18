@@ -33,17 +33,27 @@ function getEmailConfig() {
     return { provider: null, enabled: false, from, resendKey: '', smtp }
 }
 
-function createSmtpTransport(mail = getMailConfig()) {
+function createSmtpTransport(mail = getMailConfig(), portOverride) {
     const nodemailer = require('nodemailer')
+    const port = portOverride || mail.port
     return nodemailer.createTransport({
         host: mail.host,
-        port: mail.port,
-        secure: mail.secure,
+        port,
+        // port 465 luôn dùng SSL ngầm; 587 dùng STARTTLS
+        secure: port === 465 ? true : mail.secure,
         auth: mail.auth,
         connectionTimeout: 10000,
         greetingTimeout: 10000,
         socketTimeout: 15000,
     })
+}
+
+// Render thường chặn port 587, nên thử 465 như phương án dự phòng
+function getSmtpPortsToTry(mail) {
+    const ports = [mail.port]
+    if (!ports.includes(465)) ports.push(465)
+    if (!ports.includes(587)) ports.push(587)
+    return ports
 }
 
 async function sendViaResend({ to, subject, html, from }, resendKey) {
@@ -83,8 +93,23 @@ async function sendEmail({ to, subject, html, from }) {
         return
     }
 
-    const transporter = createSmtpTransport(config.smtp)
-    await transporter.sendMail({ from: fromAddress, to, subject, html })
+    // SMTP: thử lần lượt các port (587 -> 465). Nếu lỗi do kết nối (Render chặn),
+    // thử port tiếp theo; nếu hết port mà vẫn lỗi thì ném lỗi cuối cùng.
+    const ports = getSmtpPortsToTry(config.smtp)
+    let lastErr
+    for (const port of ports) {
+        try {
+            const transporter = createSmtpTransport(config.smtp, port)
+            await transporter.sendMail({ from: fromAddress, to, subject, html })
+            return
+        } catch (err) {
+            lastErr = err
+            const isConnError = ['ETIMEDOUT', 'ECONNREFUSED', 'ESOCKET', 'ECONNECTION'].includes(err.code)
+            if (!isConnError) throw err // lỗi auth/nội dung -> không cần thử port khác
+            console.warn(`[Email] SMTP port ${port} thất bại (${err.code}), thử port khác...`)
+        }
+    }
+    throw lastErr
 }
 
 async function verifyMailConfig() {
