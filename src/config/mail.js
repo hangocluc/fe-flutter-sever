@@ -15,6 +15,7 @@ function getMailConfig() {
 }
 
 function getEmailConfig() {
+    const brevoKey = (process.env.BREVO_API_KEY || '').trim()
     const resendKey = (process.env.RESEND_API_KEY || '').trim()
     const smtp = getMailConfig()
     const from = (
@@ -24,13 +25,18 @@ function getEmailConfig() {
         ''
     ).trim()
 
+    // Brevo ưu tiên cao nhất: chỉ cần verify 1 email lẻ (không cần domain),
+    // dùng HTTP API nên không bị Render chặn port SMTP.
+    if (brevoKey) {
+        return { provider: 'brevo', enabled: Boolean(from), from, brevoKey, resendKey: '', smtp }
+    }
     if (resendKey) {
-        return { provider: 'resend', enabled: Boolean(from), from, resendKey, smtp }
+        return { provider: 'resend', enabled: Boolean(from), from, resendKey, brevoKey: '', smtp }
     }
     if (smtp.enabled) {
-        return { provider: 'smtp', enabled: true, from: smtp.from, resendKey: '', smtp }
+        return { provider: 'smtp', enabled: true, from: smtp.from, resendKey: '', brevoKey: '', smtp }
     }
-    return { provider: null, enabled: false, from, resendKey: '', smtp }
+    return { provider: null, enabled: false, from, resendKey: '', brevoKey: '', smtp }
 }
 
 function createSmtpTransport(mail = getMailConfig(), portOverride) {
@@ -54,6 +60,37 @@ function getSmtpPortsToTry(mail) {
     if (!ports.includes(465)) ports.push(465)
     if (!ports.includes(587)) ports.push(587)
     return ports
+}
+
+// Tách "Tên <email@x.com>" -> { name, email }; nếu chỉ có email thì name rỗng
+function parseAddress(value) {
+    const str = (value || '').trim()
+    const match = str.match(/^\s*(.*?)\s*<\s*([^>]+)\s*>\s*$/)
+    if (match) return { name: match[1].replace(/^"|"$/g, ''), email: match[2].trim() }
+    return { name: '', email: str }
+}
+
+async function sendViaBrevo({ to, subject, html, from }, brevoKey) {
+    const sender = parseAddress(from)
+    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: {
+            'api-key': brevoKey,
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+        },
+        body: JSON.stringify({
+            sender: sender.name ? { name: sender.name, email: sender.email } : { email: sender.email },
+            to: [{ email: to }],
+            subject,
+            htmlContent: html,
+        }),
+    })
+
+    if (!response.ok) {
+        const body = await response.text()
+        throw new Error(`Brevo ${response.status}: ${body}`)
+    }
 }
 
 async function sendViaResend({ to, subject, html, from }, resendKey) {
@@ -88,6 +125,11 @@ async function sendEmail({ to, subject, html, from }) {
         throw new Error('EMAIL_FROM is required when using Resend')
     }
 
+    if (config.provider === 'brevo') {
+        await sendViaBrevo({ to, subject, html, from: fromAddress }, config.brevoKey)
+        return
+    }
+
     if (config.provider === 'resend') {
         await sendViaResend({ to, subject, html, from: fromAddress }, config.resendKey)
         return
@@ -114,6 +156,15 @@ async function sendEmail({ to, subject, html, from }) {
 
 async function verifyMailConfig() {
     const config = getEmailConfig()
+
+    if (config.provider === 'brevo') {
+        if (!config.from) {
+            console.warn('[Email] BREVO_API_KEY set but EMAIL_FROM missing (phải là email đã verify trên Brevo)')
+            return false
+        }
+        console.log(`[Email] Brevo API ready (from: ${config.from})`)
+        return true
+    }
 
     if (config.provider === 'resend') {
         if (!config.from) {
