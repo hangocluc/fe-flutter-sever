@@ -191,6 +191,45 @@ class LessonController {
       const hasLessonKeyOnQuestions = questionRows.some((r) => this._topicLessonKey(r) != null);
       const multiLesson = lessonRows.length > 1;
 
+      // Khi có nhiều chương, mỗi dòng topic/question bắt buộc phải có cột tham chiếu
+      // chương (lesson_id) để biết thuộc chương nào. Nếu thiếu, toàn bộ dòng sẽ bị bỏ
+      // qua âm thầm -> báo lỗi rõ ràng để người dùng biết phải thêm cột lesson_id.
+      if (multiLesson) {
+        const missing = [];
+        if (topicRows.length > 0 && !hasLessonKeyOnTopics) missing.push('Topics (bài học)');
+        if (questionRows.length > 0 && !hasLessonKeyOnQuestions) missing.push('Questions (câu hỏi)');
+        if (missing.length > 0) {
+          res.send(
+            `<center><h2 style="color: red">File có ${lessonRows.length} chương nhưng sheet ${missing.join(' và ')} thiếu cột <b>lesson_id</b>.<br/>` +
+              `Hãy thêm cột <b>lesson_id</b> (giá trị khớp cột id ở sheet Lesson, vd 1, 2, 3...) cho từng dòng, giống như sheet Topics.</h2></center>`,
+          );
+          return;
+        }
+      }
+
+      // Đếm các dòng "mồ côi": có nội dung nhưng lesson_id trống hoặc không khớp
+      // chương nào trong file -> những dòng này sẽ bị bỏ qua, cần báo cho người dùng.
+      let orphanTopics = 0;
+      let orphanQuestions = 0;
+      if (multiLesson) {
+        const validLessonKeys = new Set();
+        lessonRows.forEach((lr, i) => {
+          validLessonKeys.add(this._lessonRowKey(lr, i));
+          const t = lr.title != null ? String(lr.title).trim() : '';
+          if (t) validLessonKeys.add(t);
+        });
+        const isOrphan = (row) => {
+          const key = this._topicLessonKey(row);
+          return key == null || !validLessonKeys.has(key);
+        };
+        orphanTopics = topicRows.filter(
+          (t) => this._normalizeImportText(t.title) && isOrphan(t),
+        ).length;
+        orphanQuestions = questionRows.filter(
+          (q) => this._normalizeImportText(q.question) && isOrphan(q),
+        ).length;
+      }
+
       // Pre-load tất cả lessons, topics, quizzes, questions một lần duy nhất
       const [existingLessons, existingTopics, existingQuizzes, existingQuestions] =
         await Promise.all([
@@ -203,11 +242,19 @@ class LessonController {
       const existingByTitle = new Map(existingLessons.map((l) => [String(l.title).trim(), l]));
 
       // Index topics/quiz/questions theo lessonId để tra cứu O(1)
+      // topicsByLesson: Set tiêu đề (để lọc trùng khi thêm)
+      // dbTopicDocsByLesson: danh sách {_id, title} (để biết cái nào cần xoá khi đồng bộ)
       const topicsByLesson = new Map();
+      const dbTopicDocsByLesson = new Map();
       for (const t of existingTopics) {
         const key = String(t.lessonId);
-        if (!topicsByLesson.has(key)) topicsByLesson.set(key, new Set());
-        topicsByLesson.get(key).add(this._normalizeImportText(t.title));
+        if (!topicsByLesson.has(key)) {
+          topicsByLesson.set(key, new Set());
+          dbTopicDocsByLesson.set(key, []);
+        }
+        const title = this._normalizeImportText(t.title);
+        topicsByLesson.get(key).add(title);
+        dbTopicDocsByLesson.get(key).push({ _id: t._id, title });
       }
 
       const quizByLesson = new Map(existingQuizzes.map((q) => [String(q.lessonId), q]));
@@ -215,14 +262,18 @@ class LessonController {
       const questionsByQuiz = new Map();
       const questionSttsByQuiz = new Map();
       const questionCountByQuiz = new Map();
+      const dbQuestionDocsByQuiz = new Map();
       for (const q of existingQuestions) {
         const key = String(q.quizId);
         if (!questionsByQuiz.has(key)) {
           questionsByQuiz.set(key, new Set());
           questionSttsByQuiz.set(key, new Set());
           questionCountByQuiz.set(key, 0);
+          dbQuestionDocsByQuiz.set(key, []);
         }
-        questionsByQuiz.get(key).add(this._normalizeImportText(q.question));
+        const text = this._normalizeImportText(q.question);
+        questionsByQuiz.get(key).add(text);
+        dbQuestionDocsByQuiz.get(key).push({ _id: q._id, text });
         if (q.STT != null && !Number.isNaN(Number(q.STT))) {
           questionSttsByQuiz.get(key).add(Number(q.STT));
         }
@@ -234,6 +285,8 @@ class LessonController {
       let skipped = 0;
       let topicsAdded = 0;
       let questionsAdded = 0;
+      let topicsDeleted = 0;
+      let questionsDeleted = 0;
 
       for (let lessonIndex = 0; lessonIndex < lessonRows.length; lessonIndex++) {
         const row = lessonRows[lessonIndex];
@@ -298,7 +351,41 @@ class LessonController {
           if (explicitStt != null && !Number.isNaN(explicitStt)) localQStts.add(explicitStt);
         }
 
-        if (topicsToInsert.length === 0 && questionsToInsert.length === 0) {
+        // Đồng bộ 2 chiều: xoá topic/question có trong DB nhưng KHÔNG còn trong file.
+        // Guardrail: chỉ xoá khi (1) chương đã tồn tại trong DB, và (2) file CÓ cung cấp
+        // dữ liệu loại đó cho chương này -> tránh xoá nhầm khi sheet để trống.
+        const topicIdsToDelete = [];
+        if (!isNewLesson && topicsForLesson.length > 0) {
+          const fileTopicTitles = new Set(
+            topicsForLesson
+              .map((t) => this._normalizeImportText(t.title))
+              .filter((x) => x),
+          );
+          const dbTopicDocs = dbTopicDocsByLesson.get(String(lesson._id)) ?? [];
+          for (const d of dbTopicDocs) {
+            if (!fileTopicTitles.has(d.title)) topicIdsToDelete.push(d._id);
+          }
+        }
+
+        const questionIdsToDelete = [];
+        if (!isNewLesson && questionsForLesson.length > 0 && quizKey) {
+          const fileQTexts = new Set(
+            questionsForLesson
+              .map((q) => this._normalizeImportText(q.question))
+              .filter((x) => x),
+          );
+          const dbQuestionDocs = dbQuestionDocsByQuiz.get(quizKey) ?? [];
+          for (const d of dbQuestionDocs) {
+            if (!fileQTexts.has(d.text)) questionIdsToDelete.push(d._id);
+          }
+        }
+
+        if (
+          topicsToInsert.length === 0 &&
+          questionsToInsert.length === 0 &&
+          topicIdsToDelete.length === 0 &&
+          questionIdsToDelete.length === 0
+        ) {
           skipped += 1;
           continue;
         }
@@ -325,10 +412,22 @@ class LessonController {
           }));
           await Topic.insertMany(topicDocs, { ordered: false });
           topicsAdded += topicsToInsert.length;
+        }
 
-          // Cập nhật totalTopic mà không cần countDocuments
+        // Xoá topic không còn trong file (đồng bộ)
+        if (topicIdsToDelete.length > 0) {
+          await Topic.deleteMany({ _id: { $in: topicIdsToDelete } });
+          topicsDeleted += topicIdsToDelete.length;
+        }
+
+        // Cập nhật totalTopic theo cả thêm lẫn xoá (không cần countDocuments)
+        const topicDelta = topicsToInsert.length - topicIdsToDelete.length;
+        if (topicDelta !== 0) {
           const prevTotal = lesson.totalTopic ?? 0;
-          await Lesson.updateOne({ _id: lesson._id }, { totalTopic: prevTotal + topicsToInsert.length });
+          await Lesson.updateOne(
+            { _id: lesson._id },
+            { totalTopic: Math.max(0, prevTotal + topicDelta) },
+          );
         }
 
         // Batch insert questions
@@ -350,6 +449,12 @@ class LessonController {
           questionsAdded += questionsToInsert.length;
         }
 
+        // Xoá question không còn trong file (đồng bộ)
+        if (questionIdsToDelete.length > 0) {
+          await Question.deleteMany({ _id: { $in: questionIdsToDelete } });
+          questionsDeleted += questionIdsToDelete.length;
+        }
+
         if (isNewLesson) {
           created += 1;
         } else {
@@ -357,15 +462,37 @@ class LessonController {
         }
       }
 
-      if (created === 0 && topicsAdded === 0 && questionsAdded === 0) {
+      if (
+        created === 0 &&
+        topicsAdded === 0 &&
+        questionsAdded === 0 &&
+        topicsDeleted === 0 &&
+        questionsDeleted === 0
+      ) {
+        const reasons = [];
+        if (orphanQuestions > 0) {
+          reasons.push(
+            `${orphanQuestions} câu hỏi bị bỏ qua vì cột <b>lesson_id</b> trống hoặc không khớp chương nào trong sheet Lesson`,
+          );
+        }
+        if (orphanTopics > 0) {
+          reasons.push(
+            `${orphanTopics} bài học bị bỏ qua vì cột <b>lesson_id</b> trống hoặc không khớp chương nào`,
+          );
+        }
+        if (reasons.length === 0) {
+          reasons.push(
+            'tất cả bài học/câu hỏi trong file đã tồn tại trong hệ thống (không có dữ liệu mới)',
+          );
+        }
         res.send(
-          `<center><h2 style="color: red">Không import được dữ liệu nào (${skipped} chương thiếu title hoặc không có bài học/câu hỏi mới trong file)</h2></center>`,
+          `<center><h2 style="color: red">Không import được dữ liệu nào.<br/>${reasons.join('<br/>')}</h2></center>`,
         );
         return;
       }
 
       res.redirect(
-        `/lesson.html?imported=${created}&updated=${updated}&topics=${topicsAdded}&questions=${questionsAdded}&skipped=${skipped}`,
+        `/lesson.html?imported=${created}&updated=${updated}&topics=${topicsAdded}&questions=${questionsAdded}&topicsDeleted=${topicsDeleted}&questionsDeleted=${questionsDeleted}&skipped=${skipped}`,
       );
     } catch (e) {
       res.json({

@@ -122,8 +122,10 @@
                     href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
                 <input id="list-lesson" style="display: none;" value="{{this.listLesson}}"></input>
                 <input id="list-Count" style="display: none;" value="{{this.listCount}}"></input>
-                <input id="list-lesson2" style="display: none;" value="{{this.listLesson2}}"></input>
-                <input id="list-Count2" style="display: none;" value="{{this.listCount2}}"></input>
+                <input id="list-lesson-top" style="display: none;" value="{{this.listLessonTop}}"></input>
+                <input id="list-Count-top" style="display: none;" value="{{this.listCountTop}}"></input>
+                <input id="list-lesson-bottom" style="display: none;" value="{{this.listLessonBottom}}"></input>
+                <input id="list-Count-bottom" style="display: none;" value="{{this.listCountBottom}}"></input>
 
                 <style>
                     .fl-chart-card {
@@ -207,14 +209,11 @@
                         var arrLesson = parseList('list-lesson');
                         var arrCount = toNumbers(parseList('list-Count'));
 
-                        var arrLesson2 = parseList('list-lesson2');
-                        var arrCount2 = toNumbers(parseList('list-Count2'));
-
-                        // Top 10 nhiều nhất / ít nhất (dùng slice nên không phá mảng gốc)
-                        var topLessons = arrLesson2.slice(0, 10);
-                        var topCounts = arrCount2.slice(0, 10);
-                        var bottomLessons = arrLesson2.slice(-10);
-                        var bottomCounts = arrCount2.slice(-10);
+                        // Top 10 nhiều nhất / ít nhất: đọc trực tiếp từ 2 danh sách riêng
+                        var topLessons = parseList('list-lesson-top');
+                        var topCounts = toNumbers(parseList('list-Count-top'));
+                        var bottomLessons = parseList('list-lesson-bottom');
+                        var bottomCounts = toNumbers(parseList('list-Count-bottom'));
 
                         // ----- Cấu hình chung -----
                         Chart.defaults.font.family =

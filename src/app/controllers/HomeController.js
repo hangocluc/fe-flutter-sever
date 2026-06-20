@@ -45,23 +45,34 @@ class HomeController {
 
         a.sort(compare);
 
-        var listLessson2 = ''
-        var listCount2 = ''
-        for (var i = 0; i < 10; i++) {
-            if (a[i] != null) {
-                listLessson2 += a[i].title + '/'
-                listCount2 += a[i].count + '/'
+        // Tách riêng top 10 (nhiều nhất) và bottom 10 (ít nhất) thành 2 danh sách
+        // độc lập. Trước đây gộp chung 1 chuỗi rồi cắt 10/10 ở view, nên khi tổng số
+        // lesson < 20 thì phần bottom lặp lại lesson của phần top -> dữ liệu bị lặp.
+        function buildPair(rows) {
+            var titles = ''
+            var counts = ''
+            for (var r of rows) {
+                titles += r.title + '/'
+                counts += r.count + '/'
             }
+            return { titles: titles, counts: counts }
         }
 
-        for (var i = a.length - 10; i < a.length; i++) {
-            if (a[i] != null) {
-                listLessson2 += a[i].title + '/'
-                listCount2 += a[i].count + '/'
-            }
-        }
+        var top = buildPair(a.slice(0, 10))
+        // bottom: lấy 10 lesson ít người học nhất, hiển thị từ ít nhất -> nhiều hơn
+        var bottom = buildPair(a.slice(-10).reverse())
 
-        res.render('home', { user: user.length, lesson: ls.length, qa: qa.length, listLesson: listLessson, listCount: listCount, listLesson2: listLessson2, listCount2: listCount2 })
+        res.render('home', {
+            user: user.length,
+            lesson: ls.length,
+            qa: qa.length,
+            listLesson: listLessson,
+            listCount: listCount,
+            listLessonTop: top.titles,
+            listCountTop: top.counts,
+            listLessonBottom: bottom.titles,
+            listCountBottom: bottom.counts,
+        })
     }
 }
 
