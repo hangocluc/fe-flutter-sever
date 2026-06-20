@@ -113,7 +113,7 @@
                         </div>
                     </div>
                 </div>
-                <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+                <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
                 <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
                 <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
                 <script type="text/javascript"
@@ -124,122 +124,182 @@
                 <input id="list-Count" style="display: none;" value="{{this.listCount}}"></input>
                 <input id="list-lesson2" style="display: none;" value="{{this.listLesson2}}"></input>
                 <input id="list-Count2" style="display: none;" value="{{this.listCount2}}"></input>
-                {{!-- Thống kê All --}}
-                {{!-- <center>
-                    <canvas id="myChartAll"
-                        style="max-width: 1250px;width:100%;margin-top: 100px; margin-bottom: 10px"></canvas>
 
-                </center> --}}
+                <style>
+                    .fl-chart-card {
+                        background: #fff;
+                        border: 1px solid #e3e6f0;
+                        border-radius: 12px;
+                        box-shadow: 0 2px 12px rgba(58, 59, 69, 0.08);
+                        padding: 20px 24px 24px;
+                        margin: 24px 0;
+                    }
+                    .fl-chart-card__title {
+                        font-size: 1rem;
+                        font-weight: 700;
+                        color: #5a5c69;
+                        text-transform: uppercase;
+                        letter-spacing: .04em;
+                        margin: 0 0 4px;
+                    }
+                    .fl-chart-card__subtitle {
+                        font-size: .8rem;
+                        color: #858796;
+                        margin: 0 0 16px;
+                    }
+                    .fl-chart-card__canvas {
+                        position: relative;
+                        width: 100%;
+                    }
+                </style>
 
-
-                <center style="margin: 100px 50px;">
-                    <div style="width: 100%; overflow-x: auto; overflow-y: hidden;">
-                        <div style="min-width: 3000px; height: 700px">
-                            <canvas id="myChartAll" height="700" width="0"></canvas>
+                <div class="container-fluid">
+                    {{!-- Thống kê tất cả bài học --}}
+                    <div class="fl-chart-card">
+                        <h4 class="fl-chart-card__title">Statistics of the number of learners per lesson</h4>
+                        <p class="fl-chart-card__subtitle">All lessons, ordered as listed</p>
+                        <div class="fl-chart-card__canvas" id="wrap-myChartAll">
+                            <canvas id="myChartAll"></canvas>
                         </div>
                     </div>
-                    <h4 style="text-transform: uppercase; color: black;">Statistics of the number of learners per lesson
-                    </h4>
-                </center>
 
-                {{!-- TOp học nhiều nhất --}}
-                <center>
-                    <canvas id="myChart"
-                        style="width:100%;max-width: 800px;margin-top: 100px; margin-bottom: 10px"></canvas>
-                    <h4 style="text-transform: uppercase; color: black;">Top 10 most learned lesson</h4>
-                </center>
+                    {{!-- Top học nhiều nhất --}}
+                    <div class="fl-chart-card">
+                        <h4 class="fl-chart-card__title">Top 10 most learned lessons</h4>
+                        <p class="fl-chart-card__subtitle">Lessons with the highest number of learners</p>
+                        <div class="fl-chart-card__canvas" id="wrap-myChart">
+                            <canvas id="myChart"></canvas>
+                        </div>
+                    </div>
 
-                {{!-- TOp học ít nhất --}}
-                <center>
-                    <canvas id="myChart2"
-                        style="width:100%;max-width: 800px; margin-top: 100px; margin-bottom: 10px"></canvas>
-                    <h4 style="text-transform: uppercase; color: black;">Top 10 lessons learned the least</h4>
-                </center>
-
-
+                    {{!-- Top học ít nhất --}}
+                    <div class="fl-chart-card">
+                        <h4 class="fl-chart-card__title">Top 10 least learned lessons</h4>
+                        <p class="fl-chart-card__subtitle">Lessons with the lowest number of learners</p>
+                        <div class="fl-chart-card__canvas" id="wrap-myChart2">
+                            <canvas id="myChart2"></canvas>
+                        </div>
+                    </div>
+                </div>
 
                 <script>
+                    (function () {
+                        // ----- Palette nhất quán (theo tông màu của template SB Admin 2) -----
+                        var PALETTE = [
+                            '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b',
+                            '#6f42c1', '#fd7e14', '#20c9a6', '#5a5c69', '#e83e8c'
+                        ];
+                        var colorsFor = function (n) {
+                            var out = [];
+                            for (var i = 0; i < n; i++) out.push(PALETTE[i % PALETTE.length]);
+                            return out;
+                        };
 
+                        // ----- Đọc & làm sạch dữ liệu -----
+                        var parseList = function (id) {
+                            var raw = document.getElementById(id).getAttribute('value') || '';
+                            return raw.split('/').filter(function (v) { return v !== ''; });
+                        };
+                        var toNumbers = function (arr) {
+                            return arr.map(function (v) { return Number(v) || 0; });
+                        };
 
-                    var listLesson = document.getElementById('list-lesson').getAttribute("value");
-                    var listCount = document.getElementById('list-Count').getAttribute("value");
-                    var arrLesson = listLesson.split("/")
-                    var arrCount = listCount.split("/")
-                    var newArray = arrCount.concat(arrCount);
-                    var newArray2 = arrLesson.concat(arrLesson);
-                    arrLesson.pop()
-                    arrCount.pop()
-                    var color = ['Thistle', 'Teal', 'SteelBlue', 'SpringGreen', 'SkyBlue', 'SandyBrown', 'SaddleBrown', 'RebeccaPurple', 'OliveDrab']
-                    var color2 = ['green', 'yellow', 'red', 'blue', 'cyan', 'brown', 'violet', 'orange', 'purple', 'pink']
-                    var listColor = []
-                    for (var i = 0; i < arrLesson.length; i++) {
-                        listColor.push(color2[Math.floor(Math.random() * 10)])
-                    }
+                        var arrLesson = parseList('list-lesson');
+                        var arrCount = toNumbers(parseList('list-Count'));
 
-                    var listLesson2 = document.getElementById('list-lesson2').getAttribute("value");
-                    var listCount2 = document.getElementById('list-Count2').getAttribute("value");
-                    var arrLesson2 = listLesson2.split("/")
-                    var arrCount2 = listCount2.split("/")
-                    arrLesson2.pop()
-                    arrCount2.pop()
-                    var arrLessonTop10 = arrLesson2.slice(0, 10)
-                    var arrCountTop10 = arrCount2.splice(0, 10)
+                        var arrLesson2 = parseList('list-lesson2');
+                        var arrCount2 = toNumbers(parseList('list-Count2'));
 
-                    var arrLessonTop10Below = arrLesson2.splice(arrLesson2.length - 10)
-                    var arrCountTop10Below = arrCount2.splice(arrCount2.length - 10)
+                        // Top 10 nhiều nhất / ít nhất (dùng slice nên không phá mảng gốc)
+                        var topLessons = arrLesson2.slice(0, 10);
+                        var topCounts = arrCount2.slice(0, 10);
+                        var bottomLessons = arrLesson2.slice(-10);
+                        var bottomCounts = arrCount2.slice(-10);
 
-                    arrCountTop10.push(0)
+                        // ----- Cấu hình chung -----
+                        Chart.defaults.font.family =
+                            "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
+                        Chart.defaults.color = '#5a5c69';
 
-                    new Chart("myChartAll", {
-                        type: "bar",
-                        data: {
-                            labels: arrLesson,
-                            datasets: [{
-                                backgroundColor: listColor,
-                                data: arrCount
-                            }]
-                        },
-                        options: {
-                            legend: { display: false },
-                            title: {
-                                display: false,
-                            }
-                        }
-                    });
+                        var horizontalBarOptions = function () {
+                            return {
+                                indexAxis: 'y',
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                layout: { padding: { right: 12 } },
+                                plugins: {
+                                    legend: { display: false },
+                                    tooltip: {
+                                        backgroundColor: '#3a3b45',
+                                        padding: 10,
+                                        cornerRadius: 6,
+                                        callbacks: {
+                                            label: function (ctx) {
+                                                return ' ' + ctx.parsed.x + ' learner(s)';
+                                            }
+                                        }
+                                    }
+                                },
+                                scales: {
+                                    x: {
+                                        beginAtZero: true,
+                                        ticks: { precision: 0 },
+                                        grid: { color: '#eaecf4' }
+                                    },
+                                    y: {
+                                        grid: { display: false },
+                                        afterFit: function (scale) { scale.width = 320; },
+                                        ticks: {
+                                            autoSkip: false,
+                                            crossAlign: 'far',
+                                            callback: function (value) {
+                                                var label = this.getLabelForValue(value);
+                                                return label.length > 44 ? label.slice(0, 43) + '…' : label;
+                                            }
+                                        }
+                                    }
+                                }
+                            };
+                        };
 
-                    new Chart("myChart", {
-                        type: "bar",
-                        data: {
-                            labels: arrLessonTop10,
-                            datasets: [{
-                                backgroundColor: color2,
-                                data: arrCountTop10
-                            }]
-                        },
-                        options: {
-                            legend: { display: false },
-                            title: {
-                                display: true,
-                            }
-                        }
-                    });
+                        var datasetFor = function (data) {
+                            return [{
+                                data: data,
+                                backgroundColor: colorsFor(data.length),
+                                borderRadius: 6,
+                                borderSkipped: false,
+                                maxBarThickness: 26
+                            }];
+                        };
 
-                    new Chart("myChart2", {
-                        type: "bar",
-                        data: {
-                            labels: arrLessonTop10Below,
-                            datasets: [{
-                                backgroundColor: color2.reverse(),
-                                data: arrCountTop10Below
-                            }]
-                        },
-                        options: {
-                            legend: { display: false },
-                            title: {
-                                display: true,
-                            }
-                        }
-                    });
+                        // Chiều cao co giãn theo số bản ghi để các thanh không bị bóp méo
+                        var setHeight = function (wrapId, count) {
+                            var h = Math.max(220, count * 34 + 60);
+                            document.getElementById(wrapId).style.height = h + 'px';
+                        };
+
+                        setHeight('wrap-myChartAll', arrLesson.length);
+                        setHeight('wrap-myChart', topLessons.length);
+                        setHeight('wrap-myChart2', bottomLessons.length);
+
+                        new Chart('myChartAll', {
+                            type: 'bar',
+                            data: { labels: arrLesson, datasets: datasetFor(arrCount) },
+                            options: horizontalBarOptions()
+                        });
+
+                        new Chart('myChart', {
+                            type: 'bar',
+                            data: { labels: topLessons, datasets: datasetFor(topCounts) },
+                            options: horizontalBarOptions()
+                        });
+
+                        new Chart('myChart2', {
+                            type: 'bar',
+                            data: { labels: bottomLessons, datasets: datasetFor(bottomCounts) },
+                            options: horizontalBarOptions()
+                        });
+                    })();
                 </script>
 
 
